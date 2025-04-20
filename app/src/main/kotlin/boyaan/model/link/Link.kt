@@ -2,7 +2,14 @@ package boyaan.model.link
 
 import boyaan.model.node.Node
 
-abstract class Link<N : Node<V>, V>(
-    val source: N,
-    val target: N,
-)
+class Link(
+    val sourceNodeId: Int,
+    val targetNodeId: Int,
+    var weight: Double = 0.0,
+    val state: State = State.Undirected
+) {
+    enum class State {
+        Directed,
+        Undirected,
+    }
+}

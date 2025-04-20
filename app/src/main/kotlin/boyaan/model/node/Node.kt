@@ -1,6 +1,6 @@
 package boyaan.model.node
 
-abstract class Node<V>(
-    val id: Int,
-    val value: V,
+class Node<V>(
+    var value: V,
+    var weight: Double = 0.0,
 )
