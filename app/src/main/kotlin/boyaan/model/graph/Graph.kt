@@ -5,15 +5,21 @@ import boyaan.model.node.Node
 
 class Graph<V> {
     private val nodesById: MutableMap<Int, Node<V>> = mutableMapOf()
-    private val linksByIds: MutableMap<Pair<Int, Int>, Link> = mutableMapOf()
-    private val adjacentNodes: MutableMap<Int, MutableSet<Int>> = mutableMapOf()
+    private val linksByIds: MutableMap<Pair<Int, Int>, MutableList<Link>> = mutableMapOf()
+    private val adjacentNodesById: MutableMap<Int, MutableSet<Int>> = mutableMapOf()
 
     fun addNode(id: Int, node: Node<V>) {
         nodesById.getOrPut(id) { node }
     }
 
-    fun removeNode(id: Int) {
-        // TODO
+    fun removeNode(id: Int): Node<V>? {
+        adjacentNodesById[id]?.forEach {
+            adjacentNodesById[it]?.remove(id)
+            linksByIds.remove(Pair(id, it))
+            linksByIds.remove(Pair(it, id))
+        }
+        adjacentNodesById.remove(id)
+        return nodesById.remove(id)
     }
 
     fun addLink(
@@ -22,12 +28,13 @@ class Graph<V> {
         weight: Double = 0.0,
         state: Link.State = Link.State.Undirected,
     ) {
-        adjacentNodes.getOrPut(sourceNodeId) { mutableSetOf() }.add(targetNodeId)
-        adjacentNodes.getOrPut(targetNodeId) { mutableSetOf() }.add(sourceNodeId)
-        linksByIds[Pair(sourceNodeId, targetNodeId)] = Link(sourceNodeId, targetNodeId, weight, state)
+        adjacentNodesById.getOrPut(sourceNodeId) { mutableSetOf() }.add(targetNodeId)
+        adjacentNodesById.getOrPut(targetNodeId) { mutableSetOf() }.add(sourceNodeId)
+        linksByIds.getOrPut(Pair(sourceNodeId, targetNodeId)) { mutableListOf() }
+            .add(Link(sourceNodeId, targetNodeId, weight, state))
     }
 
-    fun addLinksAll(vararg nodeIds: Int, weight: Double = 0.0) {
+    fun addLinksAll(vararg nodeIds: Int, weight: Double = 0.0, state: Link.State = Link.State.Undirected) {
         for (nodeId in nodeIds) {
             for (sourceNodeId in 0..nodeIds.lastIndex) {
                 for (targetNodeId in (sourceNodeId + 1)..nodeIds.lastIndex) {
@@ -38,7 +45,7 @@ class Graph<V> {
     }
 
     fun removeLink(sourceNodeId: Int, targetNodeId: Int) {
-        // TODO
+
     }
 
     operator fun get(id: Int): Node<V>? {
