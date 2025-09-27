@@ -1,20 +1,9 @@
 package boyaan.model.core.base
 
-abstract class Graph<
-        V : Vertex<*>,
-        E : Edge<V, *>,
-        > {
+interface Graph<V, E> {
+    val vertices: Collection<Vertex<V>>
+    val edges: Collection<Edge<V, E>>
 
-    abstract val vertices: Collection<V>
-    abstract val edges: Collection<E>
-
-    abstract fun <D : Any?> addVertex(data: D): Vertex<D>
-    abstract fun <D : Any?> addEdge(
-        firstVertex: V,
-        secondVertex: V,
-        data: D,
-    ): Edge<V, D>
-
-    abstract fun removeVertex(vertex: V): Boolean
-    abstract fun removeEdge(edge: E): Boolean
+    fun addVertex(v: V): Vertex<V>
+    fun addEdge(u: V, v: V, e: E): Edge<V, E>
 }
