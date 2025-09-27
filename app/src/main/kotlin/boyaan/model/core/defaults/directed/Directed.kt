@@ -1,3 +1,3 @@
 package boyaan.model.core.defaults.directed
 
-interface Directed
+internal interface Directed

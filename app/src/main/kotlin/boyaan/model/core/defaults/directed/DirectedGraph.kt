@@ -1,10 +1,9 @@
 package boyaan.model.core.defaults.directed
 
 import boyaan.model.core.base.Graph
-import boyaan.model.core.base.Vertex
 import boyaan.model.core.defaults.DefaultVertex
 
-public class DirectedGraph<V, E> : Graph<V, E> {
+internal class DirectedGraph<V, E> : Graph<V, E> {
     private val _vertices: HashMap<Int, DefaultVertex<V>> = hashMapOf<Int, DefaultVertex<V>>()
     private val _edges: HashMap<Pair<Int, Int>, DirectedEdge<E>> = hashMapOf<Pair<Int, Int>, DirectedEdge<E>>()
     private var _nextKey: Int = 0
@@ -21,9 +20,24 @@ public class DirectedGraph<V, E> : Graph<V, E> {
         return vertex
     }
 
-    override fun addEdge(u: Vertex<V>, v: Vertex<V>, e: E): DirectedEdge<E> =
-        _edges.getOrPut(u.key to v.key) { DirectedEdge(u.key to v.key, e) }
+    override fun addEdge(uKey: Int, vKey: Int, e: E): DirectedEdge<E> =
+        _edges.getOrPut(uKey to vKey) { DirectedEdge(uKey to vKey, e) }
 
-    operator fun get(key: Int): DefaultVertex<V>? = _vertices[key]
-    operator fun get(uKey: Int, vKey: Int): DirectedEdge<E>? = _edges[uKey to vKey]
+    override operator fun get(key: Int): DefaultVertex<V>? = _vertices[key]
+    override operator fun get(uKey: Int, vKey: Int): DirectedEdge<E>? = _edges[uKey to vKey]
+
+    override fun removeVertex(key: Int): DefaultVertex<V>? =
+        _vertices.remove(key)?.also {
+            _edges
+                .keys
+                .filter { (uKey, vKey) ->
+                    uKey == key || vKey == key
+                }
+                .forEach { (uKey, vKey) ->
+                    removeEdge(uKey, vKey)
+                }
+        }
+
+    override fun removeEdge(uKey: Int, vKey: Int): DirectedEdge<E>? =
+        _edges.remove(uKey to vKey)
 }

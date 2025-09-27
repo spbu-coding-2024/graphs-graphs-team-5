@@ -2,4 +2,4 @@ package boyaan.model.core.defaults.directed
 
 import boyaan.model.core.base.Edge
 
-public class DirectedEdge<E>(override val key: Pair<Int, Int>, override var value: E) : Edge<E>, Directed
+internal class DirectedEdge<E>(override val key: Pair<Int, Int>, override var value: E) : Edge<E>, Directed

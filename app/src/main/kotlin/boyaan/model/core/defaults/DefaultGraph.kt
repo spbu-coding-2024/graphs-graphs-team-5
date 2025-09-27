@@ -1,9 +1,8 @@
 package boyaan.model.core.defaults
 
 import boyaan.model.core.base.Graph
-import boyaan.model.core.base.Vertex
 
-public class DefaultGraph<V, E> : Graph<V, E> {
+internal class DefaultGraph<V, E> : Graph<V, E> {
     private val _vertices: HashMap<Int, DefaultVertex<V>> = hashMapOf<Int, DefaultVertex<V>>()
     private val _edges: HashMap<Pair<Int, Int>, DefaultEdge<E>> = hashMapOf<Pair<Int, Int>, DefaultEdge<E>>()
     private var _nextKey: Int = 0
@@ -20,14 +19,28 @@ public class DefaultGraph<V, E> : Graph<V, E> {
         return vertex
     }
 
-    override fun addEdge(u: Vertex<V>, v: Vertex<V>, e: E): DefaultEdge<E> =
-        _edges
-            .get(u.key to v.key)
+    override fun addEdge(uKey: Int, vKey: Int, e: E): DefaultEdge<E> =
+        _edges[uKey to vKey]
             ?: _edges
-                .getOrPut(v.key to u.key) {
-                    DefaultEdge(u.key to v.key, e)
+                .getOrPut(vKey to uKey) {
+                    DefaultEdge(uKey to vKey, e)
                 }
 
-    operator fun get(key: Int): DefaultVertex<V>? = _vertices[key]
-    operator fun get(uKey: Int, vKey: Int): DefaultEdge<E>? = _edges[uKey to vKey] ?: _edges[vKey to uKey]
+    override operator fun get(key: Int): DefaultVertex<V>? = _vertices[key]
+    override operator fun get(uKey: Int, vKey: Int): DefaultEdge<E>? = _edges[uKey to vKey] ?: _edges[vKey to uKey]
+
+    override fun removeVertex(key: Int): DefaultVertex<V>? =
+        _vertices.remove(key)?.also {
+            _edges
+                .keys
+                .filter { (uKey, vKey) ->
+                    uKey == key || vKey == key
+                }
+                .forEach { (uKey, vKey) ->
+                    removeEdge(uKey, vKey)
+                }
+        }
+
+    override fun removeEdge(uKey: Int, vKey: Int): DefaultEdge<E>? =
+        _edges.remove(uKey to vKey) ?: _edges.remove(vKey to uKey)
 }
