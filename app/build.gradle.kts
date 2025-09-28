@@ -1,14 +1,25 @@
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    application
+    kotlin("jvm") version "2.1.10"
+    id("org.jetbrains.compose") version "1.6.10"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.1.10"
+    id("jacoco")
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
 }
 
 repositories {
+    google()
     mavenCentral()
+    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+    maven("https://raw.github.com/gephi/gephi/mvn-thirdparty-repo/")
 }
 
 dependencies {
     testImplementation(libs.junit.jupiter)
+    implementation(compose.desktop.currentOs)
+    testImplementation(compose.desktop.uiTestJUnit4)
+    implementation(compose.materialIconsExtended)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     implementation(libs.guava)
     implementation(libs.ktlint)
@@ -20,50 +31,17 @@ java {
     }
 }
 
-application {
-    mainClass = "boyaan.AppKt"
-}
-
 tasks.named<Test>("test") {
     useJUnitPlatform()
 }
 
-val ktlint: Configuration by configurations.creating
-
-dependencies {
-    ktlint(libs.ktlint) {
-        attributes {
-            attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
+compose.desktop {
+    application {
+        mainClass = "Appkt"
+        nativeDistributions {
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            packageName = "graphs-graphs-team-9"
+            packageVersion = "1.0.0"
         }
     }
-}
-
-val ktlintCheck by tasks.registering(JavaExec::class) {
-    group = LifecycleBasePlugin.VERIFICATION_GROUP
-    description = "Check Kotlin code style"
-    classpath = ktlint
-    mainClass.set("com.pinterest.ktlint.Main")
-    args(
-        "**/src/**/*.kt",
-        "**.kts",
-        "!**/build/**",
-    )
-}
-
-tasks.register<JavaExec>("ktlintFormat") {
-    group = LifecycleBasePlugin.VERIFICATION_GROUP
-    description = "Check Kotlin code style and format"
-    classpath = ktlint
-    mainClass.set("com.pinterest.ktlint.Main")
-    jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
-    args(
-        "-F",
-        "**/src/**/*.kt",
-        "**.kts",
-        "!**/build/**",
-    )
-}
-
-tasks.check {
-    dependsOn(ktlintCheck)
 }
