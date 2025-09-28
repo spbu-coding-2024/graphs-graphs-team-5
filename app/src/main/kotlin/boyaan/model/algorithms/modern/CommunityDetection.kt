@@ -6,7 +6,7 @@ import boyaan.model.core.defaults.weighted.Weighted
 import org.jetbrains.research.ictl.louvain.Link
 import org.jetbrains.research.ictl.louvain.computeModularity
 
-typealias Partition = Map<Int, Int>
+internal typealias Partition = Map<Int, Int>
 
 internal class CommunityDetection<V, E>(
     val graph: boyaan.model.core.base.Graph<V, E>,
@@ -37,6 +37,5 @@ internal class CommunityDetection<V, E>(
         org.jetbrains.research.ictl.louvain
             .getPartition(links, depth)
 
-    val Partition.modularity: Double
-        get() = computeModularity(links, this)
+    fun computeModularity(partition: Partition): Double = computeModularity(links, partition)
 }
