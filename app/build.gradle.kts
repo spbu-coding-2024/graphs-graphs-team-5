@@ -13,6 +13,7 @@ repositories {
     mavenCentral()
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     maven("https://raw.github.com/gephi/gephi/mvn-thirdparty-repo/")
+    maven("https://jitpack.io")
 }
 
 dependencies {
@@ -23,6 +24,7 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     implementation(libs.guava)
     implementation(libs.ktlint)
+    implementation("com.github.JetBrains-Research:louvain:main-SNAPSHOT")
 }
 
 java {
