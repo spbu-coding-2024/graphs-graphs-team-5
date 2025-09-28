@@ -116,7 +116,6 @@ fun floatingWindowComponent(
 
                 IconButton(
                     onClick = {
-                        println("Close button clicked")
                         onClose()
                     },
                     modifier = Modifier.size(24.dp),
