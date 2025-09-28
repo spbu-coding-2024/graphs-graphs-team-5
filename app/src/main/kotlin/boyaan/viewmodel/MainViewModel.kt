@@ -65,7 +65,7 @@ class MainViewModel {
     }
 
     fun selectVertex(v_key: Int) {
-        tabs[selectedTab].selectedVertex = v_key
+        tabs[selectedTab].selectedVertex.value = v_key
     }
 
     fun addVertexToCurrentTab(name: String) {
@@ -76,7 +76,6 @@ class MainViewModel {
                 (100..800).random().toFloat(),
                 (100..600).random().toFloat(),
             )
-        tabs[selectedTab].update = !tabs[selectedTab].update
     }
 
     fun openFloatingWindow(
@@ -103,7 +102,7 @@ class MainViewModel {
                     @androidx.compose.runtime.Composable {
                         val currentTab = tabs[selectedTab]
                         val selectedVertex =
-                            currentTab.selectedVertex?.let {
+                            currentTab.selectedVertex.value?.let {
                                 currentTab.graph[it]
                             }
                         propertiesWindow(selectedVertex)
