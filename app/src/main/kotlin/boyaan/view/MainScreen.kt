@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -132,6 +131,7 @@ fun mainScreen(viewModel: MainViewModel) {
                             onMoveWindow = { windowId, newOffset -> viewModel.moveFloatingWindow(windowId, newOffset) },
                             onActivateWindow = { windowId -> viewModel.activateWindow(windowId) },
                             onVertexSelected = { v_key -> viewModel.selectVertex(v_key) },
+                            currentTab = currentTab,
                         )
                     }
                 }

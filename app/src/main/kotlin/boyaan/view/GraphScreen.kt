@@ -6,12 +6,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import boyaan.model.FloatingWindow
+import boyaan.model.TabState
 import boyaan.model.core.base.Graph
-import boyaan.viewmodel.MainViewModel
 
 @Composable
 fun graphScreen(
     graph: Graph<String, String>,
+    currentTab: TabState,
     floatingWindows: List<FloatingWindow>,
     activeWindowId: String?,
     onCloseWindow: (String) -> Unit,
@@ -20,7 +21,9 @@ fun graphScreen(
     onVertexSelected: (Int) -> Unit,
 ) {
     Box(Modifier.fillMaxSize()) {
-        draggableGraphView(graph = graph, modifier = Modifier.fillMaxSize(), onVertexSelected = { onVertexSelected(it) })
+        draggableGraphView(graph = graph, modifier = Modifier.fillMaxSize(), onVertexSelected = {
+            onVertexSelected(it)
+        }, currentTab = currentTab)
 
         floatingWindows.forEach { window ->
             floatingWindowComponent(

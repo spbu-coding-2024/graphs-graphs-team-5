@@ -19,7 +19,11 @@ internal class DefaultGraph<V, E> : Graph<V, E> {
         return vertex
     }
 
-    override fun addEdge(uKey: Int, vKey: Int, e: E): DefaultEdge<E> =
+    override fun addEdge(
+        uKey: Int,
+        vKey: Int,
+        e: E,
+    ): DefaultEdge<E> =
         _edges[uKey to vKey]
             ?: _edges
                 .getOrPut(vKey to uKey) {
@@ -27,7 +31,11 @@ internal class DefaultGraph<V, E> : Graph<V, E> {
                 }
 
     override operator fun get(key: Int): DefaultVertex<V>? = _vertices[key]
-    override operator fun get(uKey: Int, vKey: Int): DefaultEdge<E>? = _edges[uKey to vKey] ?: _edges[vKey to uKey]
+
+    override operator fun get(
+        uKey: Int,
+        vKey: Int,
+    ): DefaultEdge<E>? = _edges[uKey to vKey] ?: _edges[vKey to uKey]
 
     override fun removeVertex(key: Int): DefaultVertex<V>? =
         _vertices.remove(key)?.also {
@@ -35,12 +43,13 @@ internal class DefaultGraph<V, E> : Graph<V, E> {
                 .keys
                 .filter { (uKey, vKey) ->
                     uKey == key || vKey == key
-                }
-                .forEach { (uKey, vKey) ->
+                }.forEach { (uKey, vKey) ->
                     removeEdge(uKey, vKey)
                 }
         }
 
-    override fun removeEdge(uKey: Int, vKey: Int): DefaultEdge<E>? =
-        _edges.remove(uKey to vKey) ?: _edges.remove(vKey to uKey)
+    override fun removeEdge(
+        uKey: Int,
+        vKey: Int,
+    ): DefaultEdge<E>? = _edges.remove(uKey to vKey) ?: _edges.remove(vKey to uKey)
 }
