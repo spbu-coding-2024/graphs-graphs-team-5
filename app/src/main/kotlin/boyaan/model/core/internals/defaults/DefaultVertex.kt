@@ -1,4 +1,4 @@
-package boyaan.model.core.defaults
+package boyaan.model.core.internals.defaults
 
 import boyaan.model.core.base.Vertex
 
