@@ -125,13 +125,13 @@ fun mainScreen(viewModel: MainViewModel) {
                         val currentTab = viewModel.tabs[viewModel.selectedTab]
 
                         graphScreen(
+                            graph = currentTab.graph,
                             floatingWindows = currentTab.floatingWindows,
                             activeWindowId = currentTab.activeWindowId,
                             onCloseWindow = { windowId -> viewModel.closeFloatingWindow(windowId) },
                             onMoveWindow = { windowId, newOffset -> viewModel.moveFloatingWindow(windowId, newOffset) },
-                            onActivateWindow = { windowId ->
-                                viewModel.activateWindow(windowId)
-                            },
+                            onActivateWindow = { windowId -> viewModel.activateWindow(windowId) },
+                            onVertexSelected = { v_key -> viewModel.selectVertex(v_key) },
                         )
                     }
                 }

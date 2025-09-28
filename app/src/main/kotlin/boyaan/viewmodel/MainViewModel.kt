@@ -8,6 +8,7 @@ import androidx.compose.ui.unit.IntSize
 import boyaan.model.FloatingWindow
 import boyaan.model.ScreenState
 import boyaan.model.TabState
+import boyaan.model.core.defaults.DefaultGraph
 import boyaan.view.edgeEditorWindow
 import boyaan.view.nodeEditorWindow
 import boyaan.view.propertiesWindow
@@ -28,7 +29,15 @@ class MainViewModel {
     }
 
     fun addTab() {
-        tabs = tabs + TabState("Вкладка ${tabs.size + 1}")
+        val defGraph =
+            DefaultGraph<String, String>().apply {
+                val v1 = addVertex("A")
+                val v2 = addVertex("B")
+                val v3 = addVertex("C")
+                addEdge(v1.key, v2.key, "AB")
+                addEdge(v2.key, v3.key, "BC")
+            }
+        tabs = tabs + TabState(title = "Вкладка ${tabs.size + 1}", graph = defGraph)
         selectedTab = tabs.lastIndex
     }
 
@@ -54,10 +63,10 @@ class MainViewModel {
             }
     }
 
-    fun selectNode(node: String) {
+    fun selectVertex(v_key: Int) {
         tabs =
             tabs.toMutableList().also {
-                it[selectedTab] = it[selectedTab].copy(selectedNode = node)
+                it[selectedTab] = it[selectedTab].copy(selectedVertex = v_key)
             }
     }
 
@@ -75,7 +84,14 @@ class MainViewModel {
                     @androidx.compose.runtime.Composable { edgeEditorWindow() }
                 }
                 "properties" -> {
-                    @androidx.compose.runtime.Composable { propertiesWindow() }
+                    @androidx.compose.runtime.Composable {
+                        val currentTab = tabs[selectedTab]
+                        val selectedVertex =
+                            currentTab.selectedVertex?.let { v_key ->
+                                currentTab.graph[v_key]
+                            }
+                        propertiesWindow(selectedVertex)
+                    }
                 }
                 else -> null
             }
