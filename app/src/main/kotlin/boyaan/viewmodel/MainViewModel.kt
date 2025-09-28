@@ -147,27 +147,15 @@ class MainViewModel {
     }
 
     fun activateWindow(windowId: String) {
-        println("=== ACTIVATE WINDOW CALLED ===")
-        println("Requested windowId: $windowId")
-        println("Current activeWindowId: ${tabs[selectedTab].activeWindowId}")
-        println("All windows in tab: ${tabs[selectedTab].floatingWindows.map { it.id }}")
-
         tabs =
             tabs.toMutableList().also { list ->
                 val tab = list[selectedTab]
                 val windowExists = tab.floatingWindows.any { it.id == windowId }
-                println("Window exists: $windowExists")
 
                 if (windowExists) {
                     list[selectedTab] = tab.copy(activeWindowId = windowId)
-                    println("New active window set: $windowId")
-                } else {
-                    println("Window not found, activation skipped")
                 }
             }
-
-        println("New activeWindowId: ${tabs[selectedTab].activeWindowId}")
-        println("=== ACTIVATE WINDOW FINISHED ===")
     }
 
     fun getActiveWindow(): FloatingWindow? {
