@@ -8,10 +8,12 @@ import androidx.compose.ui.unit.IntSize
 import boyaan.model.FloatingWindow
 import boyaan.model.ScreenState
 import boyaan.model.TabState
+import boyaan.model.core.defaults.DefaultGraph
 import boyaan.view.edgeEditorWindow
-import boyaan.view.nodeEditorWindow
 import boyaan.view.propertiesWindow
+import boyaan.view.vertexEditorWindow
 import java.util.UUID
+import kotlin.let
 
 class MainViewModel {
     var isDarkTheme by mutableStateOf(false)
@@ -28,7 +30,15 @@ class MainViewModel {
     }
 
     fun addTab() {
-        tabs = tabs + TabState("Вкладка ${tabs.size + 1}")
+        val defGraph =
+            DefaultGraph<String, String>().apply {
+                val v1 = addVertex("A")
+                val v2 = addVertex("B")
+                val v3 = addVertex("C")
+                addEdge(v1.key, v2.key, "AB")
+                addEdge(v2.key, v3.key, "BC")
+            }
+        tabs = tabs + TabState(title = "Вкладка ${tabs.size + 1}", graph = defGraph)
         selectedTab = tabs.lastIndex
     }
 
@@ -54,11 +64,19 @@ class MainViewModel {
             }
     }
 
-    fun selectNode(node: String) {
-        tabs =
-            tabs.toMutableList().also {
-                it[selectedTab] = it[selectedTab].copy(selectedNode = node)
-            }
+    fun selectVertex(v_key: Int) {
+        tabs[selectedTab].selectedVertex = v_key
+    }
+
+    fun addVertexToCurrentTab(name: String) {
+        val tab = tabs[selectedTab]
+        val vKey = tab.graph.addVertex(name).key
+        tab.vertexPositions[vKey] =
+            Offset(
+                (100..800).random().toFloat(),
+                (100..600).random().toFloat(),
+            )
+        tabs[selectedTab].update = !tabs[selectedTab].update
     }
 
     fun openFloatingWindow(
@@ -69,13 +87,27 @@ class MainViewModel {
         val content =
             when (type) {
                 "node_editor" -> {
-                    @androidx.compose.runtime.Composable { nodeEditorWindow() }
+                    @androidx.compose.runtime.Composable {
+                        vertexEditorWindow(
+                            addVertex = {
+                                addVertexToCurrentTab(it)
+                            },
+                            onClose = { closeFloatingWindow(windowId) },
+                        )
+                    }
                 }
                 "edge_editor" -> {
                     @androidx.compose.runtime.Composable { edgeEditorWindow() }
                 }
                 "properties" -> {
-                    @androidx.compose.runtime.Composable { propertiesWindow() }
+                    @androidx.compose.runtime.Composable {
+                        val currentTab = tabs[selectedTab]
+                        val selectedVertex =
+                            currentTab.selectedVertex?.let {
+                                currentTab.graph[it]
+                            }
+                        propertiesWindow(selectedVertex)
+                    }
                 }
                 else -> null
             }
