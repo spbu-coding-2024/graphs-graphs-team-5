@@ -1,17 +1,21 @@
-package boyaan.model.core.defaults.directed
+package boyaan.model.core.internals.directedWeighted
 
-import boyaan.model.core.base.Graph
-import boyaan.model.core.defaults.DefaultVertex
+import boyaan.model.core.internals.defaults.DefaultVertex
+import boyaan.model.core.internals.directed.DirectedGraph
+import boyaan.model.core.internals.weighted.WeightedGraph
 
-internal class DirectedGraph<V, E> : Graph<V, E> {
+internal class DirectedWeightedGraph<V, E> :
+    DirectedGraph<V, E>,
+    WeightedGraph<V, E> {
     private val _vertices: HashMap<Int, DefaultVertex<V>> = hashMapOf<Int, DefaultVertex<V>>()
-    private val _edges: HashMap<Pair<Int, Int>, DirectedEdge<E>> = hashMapOf<Pair<Int, Int>, DirectedEdge<E>>()
+    private val _edges: HashMap<Pair<Int, Int>, DirectedWeightedEdge<E>> =
+        hashMapOf<Pair<Int, Int>, DirectedWeightedEdge<E>>()
     private var nextKey: Int = 0
 
     override val vertices: Collection<DefaultVertex<V>>
         get() = _vertices.values
 
-    override val edges: Collection<DirectedEdge<E>>
+    override val edges: Collection<DirectedWeightedEdge<E>>
         get() = _edges.values
 
     override fun addVertex(v: V): DefaultVertex<V> {
@@ -24,14 +28,21 @@ internal class DirectedGraph<V, E> : Graph<V, E> {
         uKey: Int,
         vKey: Int,
         e: E,
-    ): DirectedEdge<E> = _edges.getOrPut(uKey to vKey) { DirectedEdge(uKey to vKey, e) }
+    ): DirectedWeightedEdge<E> = addEdge(uKey, vKey, e, weight = 1.0)
+
+    fun addEdge(
+        uKey: Int,
+        vKey: Int,
+        e: E,
+        weight: Double,
+    ): DirectedWeightedEdge<E> = _edges.getOrPut(uKey to vKey) { DirectedWeightedEdge(uKey to vKey, e, weight) }
 
     override operator fun get(key: Int): DefaultVertex<V>? = _vertices[key]
 
     override operator fun get(
         uKey: Int,
         vKey: Int,
-    ): DirectedEdge<E>? = _edges[uKey to vKey]
+    ): DirectedWeightedEdge<E>? = _edges[uKey to vKey] ?: _edges[vKey to uKey]
 
     override fun removeVertex(key: Int): DefaultVertex<V>? =
         _vertices.remove(key)?.also {
@@ -47,5 +58,5 @@ internal class DirectedGraph<V, E> : Graph<V, E> {
     override fun removeEdge(
         uKey: Int,
         vKey: Int,
-    ): DirectedEdge<E>? = _edges.remove(uKey to vKey)
+    ): DirectedWeightedEdge<E>? = _edges.remove(uKey to vKey)
 }

@@ -1,4 +1,4 @@
-package boyaan.model.core.defaults.directed
+package boyaan.model.core.internals.directed
 
 import boyaan.model.core.base.Edge
 

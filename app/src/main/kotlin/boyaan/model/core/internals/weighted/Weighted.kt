@@ -1,4 +1,4 @@
-package boyaan.model.core.defaults.weighted
+package boyaan.model.core.internals.weighted
 
 internal interface Weighted {
     var weight: Double
