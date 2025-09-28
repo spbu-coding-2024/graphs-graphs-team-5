@@ -1,4 +1,4 @@
-package boyaan.model.core.defaults.weighted
+package boyaan.model.core.internals.weighted
 
 import boyaan.model.core.base.Edge
 
