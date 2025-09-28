@@ -30,15 +30,7 @@ class MainViewModel {
     }
 
     fun addTab() {
-        val defGraph =
-            DefaultGraph<String, String>().apply {
-                val v1 = addVertex("A")
-                val v2 = addVertex("B")
-                val v3 = addVertex("C")
-                addEdge(v1.key, v2.key, "AB")
-                addEdge(v2.key, v3.key, "BC")
-            }
-        tabs = tabs + TabState(title = "Вкладка ${tabs.size + 1}", graph = defGraph)
+        tabs = tabs + TabState(title = "Вкладка ${tabs.size + 1}", graph = DefaultGraph())
         selectedTab = tabs.lastIndex
     }
 
