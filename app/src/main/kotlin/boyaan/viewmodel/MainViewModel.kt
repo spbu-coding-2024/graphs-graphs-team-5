@@ -100,7 +100,12 @@ class MainViewModel {
                     }
                 }
                 "edge_editor" -> {
-                    @androidx.compose.runtime.Composable { edgeEditorWindow() }
+                    @androidx.compose.runtime.Composable {
+                        edgeEditorWindow(
+                            graph = tabs[selectedTab].graph,
+                            onClose = { closeFloatingWindow(windowId) },
+                        )
+                    }
                 }
                 "properties" -> {
                     @androidx.compose.runtime.Composable {
