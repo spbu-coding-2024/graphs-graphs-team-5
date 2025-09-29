@@ -31,18 +31,7 @@ class MainViewModel {
     }
 
     fun addTab() {
-        val g: DefaultGraph<String, String> = DefaultGraph()
-        with(g) {
-            val v1 = addVertex("Hello")
-            val v2 = addVertex("World")
-            val v3 = addVertex("Yo")
-            val v4 = addVertex("Not cycle")
-            addEdge(v1.key, v2.key, "ho")
-            addEdge(v3.key, v1.key, "hop")
-            addEdge(v3.key, v2.key, "hasp")
-            addEdge(v4.key, v3.key, "not cycle")
-        }
-        tabs = tabs + TabState(title = "Вкладка ${tabs.size + 1}", graph = g)
+        tabs = tabs + TabState(title = "Вкладка ${tabs.size + 1}", graph = DefaultGraph())
         selectedTab = tabs.lastIndex
     }
 
@@ -100,7 +89,12 @@ class MainViewModel {
                     }
                 }
                 "edge_editor" -> {
-                    @androidx.compose.runtime.Composable { edgeEditorWindow() }
+                    @androidx.compose.runtime.Composable {
+                        edgeEditorWindow(
+                            graph = tabs[selectedTab].graph,
+                            onClose = { closeFloatingWindow(windowId) },
+                        )
+                    }
                 }
                 "properties" -> {
                     @androidx.compose.runtime.Composable {

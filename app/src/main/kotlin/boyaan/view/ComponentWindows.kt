@@ -6,6 +6,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
+import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ExposedDropdownMenuBox
+import androidx.compose.material.ExposedDropdownMenuDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
@@ -51,43 +55,108 @@ fun vertexEditorWindow(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun edgeEditorWindow() {
-    var fromNode by remember { mutableStateOf("") }
-    var toNode by remember { mutableStateOf("") }
-    var relationship by remember { mutableStateOf("") }
+fun edgeEditorWindow(
+    graph: Graph<String, String>,
+    onClose: () -> Unit,
+) {
+    var fromVertexKey by remember { mutableStateOf<Int?>(null) }
+    var toVertexKey by remember { mutableStateOf<Int?>(null) }
+    var edgeData by remember { mutableStateOf("") }
+
+    val fromOptions = graph.vertices.map { it.key to it.value }
+    val toOptions =
+        graph.vertices
+            .filter { it.key != fromVertexKey }
+            .map { it.key to it.value }
 
     Column(Modifier.padding(12.dp)) {
         Text("Добавить связь", style = MaterialTheme.typography.h6)
         Spacer(Modifier.height(12.dp))
-        OutlinedTextField(
-            value = fromNode,
-            onValueChange = { fromNode = it },
-            label = { Text("Из узла") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-        )
+
+        var fromExpanded by remember { mutableStateOf(false) }
+        ExposedDropdownMenuBox(
+            expanded = fromExpanded,
+            onExpandedChange = { fromExpanded = !fromExpanded },
+        ) {
+            OutlinedTextField(
+                value = fromVertexKey?.let { graph[it]?.value } ?: "",
+                onValueChange = {},
+                label = { Text("Из узла") },
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = fromExpanded) },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            ExposedDropdownMenu(
+                expanded = fromExpanded,
+                onDismissRequest = { fromExpanded = false },
+            ) {
+                fromOptions.forEach { (key, name) ->
+                    DropdownMenuItem(onClick = {
+                        fromVertexKey = key
+                        if (toVertexKey == key) toVertexKey = null
+                        fromExpanded = false
+                    }) {
+                        Text(name)
+                    }
+                }
+            }
+        }
+
         Spacer(Modifier.height(8.dp))
-        OutlinedTextField(
-            value = toNode,
-            onValueChange = { toNode = it },
-            label = { Text("В узел") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-        )
+
+        var toExpanded by remember { mutableStateOf(false) }
+        ExposedDropdownMenuBox(
+            expanded = toExpanded,
+            onExpandedChange = { toExpanded = !toExpanded },
+        ) {
+            OutlinedTextField(
+                value = toVertexKey?.let { graph[it]?.value } ?: "",
+                onValueChange = {},
+                label = { Text("В узел") },
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = toExpanded) },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            ExposedDropdownMenu(
+                expanded = toExpanded,
+                onDismissRequest = { toExpanded = false },
+            ) {
+                toOptions.forEach { (key, name) ->
+                    DropdownMenuItem(onClick = {
+                        toVertexKey = key
+                        toExpanded = false
+                    }) {
+                        Text(name)
+                    }
+                }
+            }
+        }
+
         Spacer(Modifier.height(8.dp))
+
         OutlinedTextField(
-            value = relationship,
-            onValueChange = { relationship = it },
-            label = { Text("Тип связи") },
+            value = edgeData,
+            onValueChange = { edgeData = it },
+            label = { Text("Данные ребра") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
-        Spacer(Modifier.height(16.dp))
+
+        Spacer(Modifier.height(8.dp))
+
         Button(
-            onClick = { /* TODO */ },
+            onClick = {
+                val from = fromVertexKey
+                val to = toVertexKey
+                if (from != null && to != null) {
+                    graph.addEdge(from, to, edgeData)
+                    onClose()
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
-            enabled = fromNode.isNotBlank() && toNode.isNotBlank(),
+            enabled = fromVertexKey != null && toVertexKey != null && edgeData.isNotBlank(),
         ) {
             Text("Создать связь")
         }
