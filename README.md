@@ -16,8 +16,8 @@
 * <b>Cycles find</b> - DFS - click on vertex and choose in algorithms tab - Oderiy Yaroslav
 * <b>Dijkstra algorithm</b> - Edsger Wybe Dijkstra - click on vertex and choose in algorithms tab - Oderiy Yaroslav
 * <b>Community detection</b> - Louvain - click on vertex and choose in algorithms tab - Kharisov Bogdan
-* <b>Minimum spanning tree detection</b> - Kosaraju - click on vertex and choose in alorithns tab - Kharisov Bogdan
-* <b>Strongly connected communities detection</b> - Kruskal -  click on vertex and choose in alorithns tab - Kharisov Bogdan
+* <b>Minimum spanning tree detection</b> - Kosaraju - click on vertex and choose in algorithms tab - Kharisov Bogdan
+* <b>Strongly connected communities detection</b> - Kruskal -  click on vertex and choose in algorithms tab - Kharisov Bogdan
 
 ## 🛠️ Quick Start
 Download project from github and start command from project root
