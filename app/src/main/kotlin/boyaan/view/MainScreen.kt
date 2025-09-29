@@ -178,7 +178,7 @@ fun mainScreen(
                         Column {
                             Button(onClick = { viewModel.showOpenDialog = false }, modifier = Modifier.fillMaxWidth()) { Text("SQL") }
                             Button(onClick = {
-                                val dialog = FileDialog(Frame(), "Выберите JSON для загрузки", FileDialog.LOAD)
+                                val dialog = FileDialog(Frame(), "Выберите JSON", FileDialog.LOAD)
                                 dialog.isVisible = true
                                 dialog.filenameFilter =
                                     java.io.FilenameFilter { _, name ->
