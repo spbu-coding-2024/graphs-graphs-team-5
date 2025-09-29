@@ -193,7 +193,6 @@ fun mainScreen(
                                 }
                                 viewModel.showOpenDialog = false
                             }, modifier = Modifier.fillMaxWidth()) { Text("JSON") }
-                            Button(onClick = { viewModel.showOpenDialog = false }, modifier = Modifier.fillMaxWidth()) { Text("Neo4j") }
                         }
                     },
                     confirmButton = {},
