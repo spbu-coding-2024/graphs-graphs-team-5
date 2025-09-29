@@ -2,6 +2,7 @@ package boyaan.model.algorithms.classic
 
 import boyaan.model.algorithms.Algorithm
 import boyaan.model.core.internals.directed.DirectedGraph
+import boyaan.model.core.internals.directed.DirectedUnweightedGraph
 
 internal typealias Order = ArrayDeque<Int>
 internal typealias AdjacencyMap = MutableMap<Int, MutableList<Int>>
@@ -45,13 +46,9 @@ internal class StronglyConnectedCommunitiesDetection<V, E>(
         ) {
             visited[key] = true
 
-            adjacencyMap[key]?.let {
-                for (adjacentKey in it) {
-                    visited[adjacentKey]?.apply {
-                        if (!this) {
-                            firstDFS(adjacentKey, visited, order)
-                        }
-                    }
+            adjacencyMap[key]?.forEach {
+                if (!visited.getOrDefault(it, false)) {
+                    firstDFS(it, visited, order)
                 }
             }
 
@@ -66,42 +63,29 @@ internal class StronglyConnectedCommunitiesDetection<V, E>(
             visited[key] = true
 
             stronglyConnectedCommunity.add(key)
-            transposedAdjacencyMap[key]?.let {
-                for (adjacentKey in it) {
-                    visited[adjacentKey]?.apply {
-                        if (!this) {
-                            secondDFS(adjacentKey, visited, stronglyConnectedCommunity)
-                        }
-                    }
+
+            transposedAdjacencyMap[key]?.forEach {
+                if (!visited.getOrDefault(it, false)) {
+                    secondDFS(it, visited, stronglyConnectedCommunity)
                 }
             }
         }
 
-        val visited =
-            graph.vertices
-                .associate {
-                    it.key to false
-                }.toMutableMap()
+        val visited = mutableMapOf<Int, Boolean>()
         val order = Order()
         adjacencyMap.forEach { (key, _) ->
-            visited[key]?.apply {
-                if (!this) {
-                    firstDFS(key, visited, order)
-                }
+            if (!visited.getOrDefault(key, false)) {
+                firstDFS(key, visited, order)
             }
         }
-        visited.replaceAll { key, value ->
-            false
-        }
+        visited.clear()
         val stronglyConnectedCommunities = mutableListOf<MutableList<Int>>()
         while (!order.isEmpty()) {
             val key = order.removeLast()
-            visited[key]?.apply {
-                if (!this) {
-                    val stronglyConnectedCommunity = mutableListOf<Int>()
-                    secondDFS(key, visited, stronglyConnectedCommunity)
-                    stronglyConnectedCommunities.add(stronglyConnectedCommunity)
-                }
+            if (!visited.getOrDefault(key, false)) {
+                val stronglyConnectedCommunity = mutableListOf<Int>()
+                secondDFS(key, visited, stronglyConnectedCommunity)
+                stronglyConnectedCommunities.add(stronglyConnectedCommunity)
             }
         }
         return stronglyConnectedCommunities
