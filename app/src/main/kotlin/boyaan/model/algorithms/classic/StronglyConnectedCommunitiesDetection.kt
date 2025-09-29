@@ -2,7 +2,6 @@ package boyaan.model.algorithms.classic
 
 import boyaan.model.algorithms.Algorithm
 import boyaan.model.core.internals.directed.DirectedGraph
-import boyaan.model.core.internals.directed.DirectedUnweightedGraph
 
 internal typealias Order = ArrayDeque<Int>
 internal typealias AdjacencyMap = MutableMap<Int, MutableList<Int>>
