@@ -5,6 +5,7 @@ plugins {
     id("org.jetbrains.compose") version "1.6.10"
     id("org.jetbrains.kotlin.plugin.compose") version "2.1.10"
     id("jacoco")
+    kotlin("plugin.serialization") version "1.9.10"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
 }
 
@@ -18,6 +19,7 @@ repositories {
 
 dependencies {
     testImplementation(libs.junit.jupiter)
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation(compose.desktop.currentOs)
     testImplementation(compose.desktop.uiTestJUnit4)
     implementation(compose.materialIconsExtended)

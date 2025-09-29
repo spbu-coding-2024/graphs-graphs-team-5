@@ -14,7 +14,15 @@ import java.awt.Dimension
 @Preview
 fun app() {
     val viewModel = MainViewModel()
-    mainScreen(viewModel)
+    mainScreen(
+        viewModel,
+        onTabLoaded = { loadedTab ->
+            viewModel.tabs =
+                viewModel.tabs.toMutableList().also {
+                    it[viewModel.selectedTab] = loadedTab
+                }
+        },
+    )
 }
 
 fun main() =
