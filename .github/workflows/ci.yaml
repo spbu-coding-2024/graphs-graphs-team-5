@@ -11,10 +11,10 @@ jobs:
     steps:
       - name: Repository checkout
         uses: actions/checkout@v4
-      - name: JDK 23 setup
+      - name: JDK 21 setup
         uses: actions/setup-java@v4
         with:
-          java-version: '23'
+          java-version: '21'
           distribution: 'temurin'
       - name: Build and test with Gradle Wrapper
         run: ./gradlew test
@@ -23,10 +23,10 @@ jobs:
     steps:
       - name: Repository checkout
         uses: actions/checkout@v4
-      - name: JDK 23 setup
+      - name: JDK 21 setup
         uses: actions/setup-java@v4
         with:
-          java-version: '23'
+          java-version: '21'
           distribution: 'temurin'
       - name: Ktlint check
         run: ./gradlew ktlintCheck
