@@ -29,8 +29,7 @@ import boyaan.model.core.internals.weighted.WeightedGraph
 import boyaan.model.save.TabStateD
 import boyaan.model.save.saveTabToFile
 import boyaan.model.save.toData
-import java.awt.FileDialog
-import java.awt.Frame
+import javax.swing.JFileChooser
 
 @Composable
 fun vertexEditorWindow(
@@ -84,7 +83,6 @@ fun edgeEditorWindow(
         Text("Добавить связь", style = MaterialTheme.typography.h6)
         Spacer(Modifier.height(12.dp))
 
-        // From Vertex
         var fromExpanded by remember { mutableStateOf(false) }
         ExposedDropdownMenuBox(expanded = fromExpanded, onExpandedChange = { fromExpanded = !fromExpanded }) {
             OutlinedTextField(
@@ -110,7 +108,6 @@ fun edgeEditorWindow(
 
         Spacer(Modifier.height(8.dp))
 
-        // To Vertex
         var toExpanded by remember { mutableStateOf(false) }
         ExposedDropdownMenuBox(expanded = toExpanded, onExpandedChange = { toExpanded = !toExpanded }) {
             OutlinedTextField(
@@ -207,11 +204,9 @@ fun algorithms(
 
         Button(
             onClick = {
-                val vertexKey = selectedVertexKey
-                val g = graph
-                if (vertexKey != null && g != null) {
-                    g[vertexKey]?.let { vertex ->
-                        val finder = FindCycles(g)
+                if (selectedVertexKey != null && graph != null) {
+                    graph[selectedVertexKey]?.let { vertex ->
+                        val finder = FindCycles(graph)
                         val cycles = finder.findCycles(vertex)
                         onCyclesFound(cycles)
                     }
@@ -226,11 +221,9 @@ fun algorithms(
 
         Button(
             onClick = {
-                val vertexKey = selectedVertexKey
-                val g = graph
-                if (vertexKey != null && g != null) {
-                    g[vertexKey]?.let { vertex ->
-                        val dijkstra = Dijkstra(g)
+                if (selectedVertexKey != null && graph != null) {
+                    graph[selectedVertexKey]?.let { vertex ->
+                        val dijkstra = Dijkstra(graph)
                         val result = dijkstra.shortestPaths(vertex)
                         onDijkstraResult(result)
                     }
@@ -275,18 +268,22 @@ fun saveTabWindow(
 
         Button(
             onClick = {
-                val dialog = FileDialog(Frame(), "Выберите JSON", FileDialog.SAVE)
-                dialog.isVisible = true
-                dialog.filenameFilter =
-                    java.io.FilenameFilter { _, name ->
-                        name.lowercase().endsWith(".json")
+                val dialog = JFileChooser()
+                dialog.dialogTitle = "Выберите JSON"
+                dialog.fileSelectionMode = JFileChooser.FILES_ONLY
+                dialog.fileFilter =
+                    object : javax.swing.filechooser.FileFilter() {
+                        override fun accept(f: java.io.File) = f.isDirectory || f.name.lowercase().endsWith(".json")
+
+                        override fun getDescription() = "JSON файлы (*.json)"
                     }
-                if (dialog.directory != null && dialog.file != null) {
-                    var filename = dialog.file
-                    if (!filename.endsWith(".json")) {
-                        filename += ".json"
+                val result = dialog.showSaveDialog(null)
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    var file = dialog.selectedFile
+                    if (!file.name.endsWith(".json")) {
+                        file = java.io.File(file.parentFile, file.name + ".json")
                     }
-                    savePath = "${dialog.directory}${dialog.file}"
+                    savePath = file.absolutePath
                 }
             },
             modifier = Modifier.fillMaxWidth(),
