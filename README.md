@@ -50,4 +50,4 @@ You can save and load your graph with
 * [Oderiy Yaroslav](https://github.com/XRenso)
 
 ## 🪪 License
-This project is licensed under the [<b>Fight Club Licnse</b>](LICENSE).
+This project is licensed under the [<b>MIT</b>](LICENSE).
