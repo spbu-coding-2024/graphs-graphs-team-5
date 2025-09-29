@@ -262,7 +262,7 @@ fun saveTabWindow(
     var savePath by remember { mutableStateOf<String?>(null) }
 
     Column(Modifier.padding(16.dp).width(300.dp)) {
-        Text("Сохранение / Загрузка вкладки", style = MaterialTheme.typography.h6)
+        Text("Сохранение вкладки", style = MaterialTheme.typography.h6)
         Spacer(Modifier.height(12.dp))
 
         OutlinedTextField(
