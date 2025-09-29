@@ -275,16 +275,19 @@ fun saveTabWindow(
 
         Button(
             onClick = {
-                val dialog = FileDialog(null as Frame?, "Выберите JSON")
-                dialog.mode = FileDialog.SAVE
+                val dialog = FileDialog(Frame(), "Выберите JSON", FileDialog.SAVE)
                 dialog.isVisible = true
-                val extension = ".json"
-                var file = dialog.file
-                if (file == null) return@Button
-                if (file.length < extension.length || file.substring(file.length - extension.length) != ".json") {
-                    file += extension
+                dialog.filenameFilter =
+                    java.io.FilenameFilter { _, name ->
+                        name.lowercase().endsWith(".json")
+                    }
+                if (dialog.directory != null && dialog.file != null) {
+                    var filename = dialog.file
+                    if (!filename.endsWith(".json")) {
+                        filename += ".json"
+                    }
+                    savePath = "${dialog.directory}${dialog.file}"
                 }
-                savePath = "${dialog.directory}$file"
             },
             modifier = Modifier.fillMaxWidth(),
         ) {
