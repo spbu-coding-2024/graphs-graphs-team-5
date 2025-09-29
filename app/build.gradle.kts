@@ -41,10 +41,10 @@ tasks.named<Test>("test") {
 
 compose.desktop {
     application {
-        mainClass = "Appkt"
+        mainClass = "AppKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "graphs-graphs-team-9"
+            packageName = "graphs-graphs-team-5"
             packageVersion = "1.0.0"
         }
     }
