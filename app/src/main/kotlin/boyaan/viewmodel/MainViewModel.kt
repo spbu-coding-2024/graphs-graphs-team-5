@@ -12,6 +12,7 @@ import boyaan.model.core.internals.defaults.DefaultGraph
 import boyaan.view.cycleFinderWindowForVertex
 import boyaan.view.edgeEditorWindow
 import boyaan.view.propertiesWindow
+import boyaan.view.saveTabWindow
 import boyaan.view.vertexEditorWindow
 import java.util.UUID
 import kotlin.let
@@ -124,6 +125,14 @@ class MainViewModel {
                                 onClose = { closeFloatingWindow(windowId) },
                             )
                         }
+                    }
+                } "json" -> {
+                    @androidx.compose.runtime.Composable
+                    {
+                        saveTabWindow(
+                            tab = tabs[selectedTab],
+                            onClose = { closeFloatingWindow(windowId) },
+                        )
                     }
                 }
                 else -> null
