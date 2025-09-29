@@ -19,4 +19,5 @@ data class TabState(
     val graph: Graph<String, String> = DefaultGraph(),
     val vertexPositions: SnapshotStateMap<Int, Offset> = mutableStateMapOf(),
     val fa2: ForceAtlas2<String, String> = ForceAtlas2(graph),
+    val highlightedVertex: SnapshotStateMap<Int, Boolean> = mutableStateMapOf(),
 )

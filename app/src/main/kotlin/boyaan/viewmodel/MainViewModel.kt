@@ -9,6 +9,7 @@ import boyaan.model.FloatingWindow
 import boyaan.model.ScreenState
 import boyaan.model.TabState
 import boyaan.model.core.internals.defaults.DefaultGraph
+import boyaan.view.cycleFinderWindowForVertex
 import boyaan.view.edgeEditorWindow
 import boyaan.view.propertiesWindow
 import boyaan.view.vertexEditorWindow
@@ -34,8 +35,12 @@ class MainViewModel {
         with(g) {
             val v1 = addVertex("Hello")
             val v2 = addVertex("World")
-            addVertex("Yo")
+            val v3 = addVertex("Yo")
+            val v4 = addVertex("Not cycle")
             addEdge(v1.key, v2.key, "ho")
+            addEdge(v3.key, v1.key, "hop")
+            addEdge(v3.key, v2.key, "hasp")
+            addEdge(v4.key, v3.key, "not cycle")
         }
         tabs = tabs + TabState(title = "Вкладка ${tabs.size + 1}", graph = g)
         selectedTab = tabs.lastIndex
@@ -105,6 +110,26 @@ class MainViewModel {
                                 currentTab.graph[it]
                             }
                         propertiesWindow(selectedVertex)
+                    }
+                }
+                "cycle_finder_vertex" -> {
+                    @androidx.compose.runtime.Composable
+                    {
+                        val currentTab = tabs.getOrNull(selectedTab)
+                        if (currentTab != null) {
+                            cycleFinderWindowForVertex(
+                                graph = currentTab.graph,
+                                selectedVertexKey = currentTab.selectedVertex.value,
+                                onCyclesFound = { cycles ->
+                                    currentTab.highlightedVertex.clear()
+                                    cycles.forEach { cycle ->
+                                        cycle.forEach { vKey -> currentTab.highlightedVertex[vKey] = true }
+                                    }
+                                },
+                                onClearHighlight = { currentTab.highlightedVertex.clear() },
+                                onClose = { closeFloatingWindow(windowId) },
+                            )
+                        }
                     }
                 }
                 else -> null
