@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -30,10 +29,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import boyaan.model.ScreenState
+import boyaan.model.TabState
+import boyaan.model.save.loadTabFromFile
 import boyaan.viewmodel.MainViewModel
+import java.awt.FileDialog
+import java.awt.Frame
 
 @Composable
-fun mainScreen(viewModel: MainViewModel) {
+fun mainScreen(
+    viewModel: MainViewModel,
+    onTabLoaded: (TabState) -> Unit,
+) {
     MaterialTheme(colors = if (viewModel.isDarkTheme) darkColors() else lightColors()) {
         Scaffold(
             topBar = {
@@ -72,7 +78,7 @@ fun mainScreen(viewModel: MainViewModel) {
                         modifier = Modifier.fillMaxWidth().padding(8.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
-                        if (viewModel.tabs[viewModel.selectedTab].screen is ScreenState.Graph) {
+                        if (viewModel.tabs[viewModel.selectedTab].screen == ScreenState.Graph) {
                             Row {
                                 Button(
                                     onClick = {
@@ -96,8 +102,27 @@ fun mainScreen(viewModel: MainViewModel) {
                                     onClick = {
                                         viewModel.openFloatingWindow("properties", "Свойства")
                                     },
+                                    modifier = Modifier.padding(end = 8.dp),
                                 ) {
                                     Text("Свойства")
+                                }
+
+                                Button(
+                                    onClick = {
+                                        viewModel.openFloatingWindow("cycle_finder_vertex", "Найти циклы")
+                                    },
+                                    modifier = Modifier.padding(end = 8.dp),
+                                ) {
+                                    Text("Найти циклы")
+                                }
+
+                                Button(
+                                    onClick = {
+                                        viewModel.openFloatingWindow("json", "Json")
+                                    },
+                                    modifier = Modifier.padding(end = 8.dp),
+                                ) {
+                                    Text("JSON")
                                 }
                             }
                         }
@@ -116,22 +141,23 @@ fun mainScreen(viewModel: MainViewModel) {
 
             Box(Modifier.fillMaxSize().padding(padding)) {
                 when (currentTab.screen) {
-                    is ScreenState.Home ->
+                    ScreenState.Home ->
                         homeScreen(
                             onCreate = { viewModel.setScreen(ScreenState.Graph) },
                             onOpen = { viewModel.showOpenDialog = true },
                         )
-                    is ScreenState.Graph -> {
+                    ScreenState.Graph -> {
                         val currentTab = viewModel.tabs[viewModel.selectedTab]
 
                         graphScreen(
+                            graph = currentTab.graph,
                             floatingWindows = currentTab.floatingWindows,
                             activeWindowId = currentTab.activeWindowId,
                             onCloseWindow = { windowId -> viewModel.closeFloatingWindow(windowId) },
                             onMoveWindow = { windowId, newOffset -> viewModel.moveFloatingWindow(windowId, newOffset) },
-                            onActivateWindow = { windowId ->
-                                viewModel.activateWindow(windowId)
-                            },
+                            onActivateWindow = { windowId -> viewModel.activateWindow(windowId) },
+                            onVertexSelected = { v_key -> viewModel.selectVertex(v_key) },
+                            currentTab = currentTab,
                         )
                     }
                 }
@@ -144,7 +170,22 @@ fun mainScreen(viewModel: MainViewModel) {
                     text = {
                         Column {
                             Button(onClick = { viewModel.showOpenDialog = false }, modifier = Modifier.fillMaxWidth()) { Text("SQL") }
-                            Button(onClick = { viewModel.showOpenDialog = false }, modifier = Modifier.fillMaxWidth()) { Text("JSON") }
+                            Button(onClick = {
+                                val dialog = FileDialog(Frame(), "Выберите JSON для загрузки", FileDialog.LOAD)
+                                dialog.isVisible = true
+                                dialog.filenameFilter =
+                                    java.io.FilenameFilter { _, name ->
+                                        name.lowercase().endsWith(".json")
+                                    }
+                                if (dialog.directory != null && dialog.file != null) {
+                                    val filepath = "${dialog.directory}${dialog.file}"
+                                    val loadedTab = loadTabFromFile(filepath)
+                                    if (loadedTab != null) {
+                                        onTabLoaded(loadedTab)
+                                    }
+                                }
+                                viewModel.showOpenDialog = false
+                            }, modifier = Modifier.fillMaxWidth()) { Text("JSON") }
                             Button(onClick = { viewModel.showOpenDialog = false }, modifier = Modifier.fillMaxWidth()) { Text("Neo4j") }
                         }
                     },

@@ -1,6 +1,7 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
@@ -13,7 +14,15 @@ import java.awt.Dimension
 @Preview
 fun app() {
     val viewModel = MainViewModel()
-    mainScreen(viewModel)
+    mainScreen(
+        viewModel,
+        onTabLoaded = { loadedTab ->
+            viewModel.tabs =
+                viewModel.tabs.toMutableList().also {
+                    it[viewModel.selectedTab] = loadedTab
+                }
+        },
+    )
 }
 
 fun main() =
@@ -22,6 +31,7 @@ fun main() =
             onCloseRequest = ::exitApplication,
             state = WindowState(width = 1200.dp, height = 800.dp),
             title = "Boyaan",
+            icon = painterResource("favicon.png"),
         ) {
             window.minimumSize = Dimension(900, 600)
             MaterialTheme {

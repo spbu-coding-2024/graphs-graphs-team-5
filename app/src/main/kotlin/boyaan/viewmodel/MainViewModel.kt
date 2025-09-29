@@ -8,10 +8,14 @@ import androidx.compose.ui.unit.IntSize
 import boyaan.model.FloatingWindow
 import boyaan.model.ScreenState
 import boyaan.model.TabState
+import boyaan.model.core.internals.defaults.DefaultGraph
+import boyaan.view.cycleFinderWindowForVertex
 import boyaan.view.edgeEditorWindow
-import boyaan.view.nodeEditorWindow
 import boyaan.view.propertiesWindow
+import boyaan.view.saveTabWindow
+import boyaan.view.vertexEditorWindow
 import java.util.UUID
+import kotlin.let
 
 class MainViewModel {
     var isDarkTheme by mutableStateOf(false)
@@ -28,7 +32,7 @@ class MainViewModel {
     }
 
     fun addTab() {
-        tabs = tabs + TabState("Вкладка ${tabs.size + 1}")
+        tabs = tabs + TabState(title = "Вкладка ${tabs.size + 1}", graph = DefaultGraph())
         selectedTab = tabs.lastIndex
     }
 
@@ -54,11 +58,18 @@ class MainViewModel {
             }
     }
 
-    fun selectNode(node: String) {
-        tabs =
-            tabs.toMutableList().also {
-                it[selectedTab] = it[selectedTab].copy(selectedNode = node)
-            }
+    fun selectVertex(vKey: Int) {
+        tabs[selectedTab].selectedVertex.value = vKey
+    }
+
+    fun addVertexToCurrentTab(name: String) {
+        val tab = tabs[selectedTab]
+        val vKey = tab.graph.addVertex(name).key
+        tab.vertexPositions[vKey] =
+            Offset(
+                (100..800).random().toFloat(),
+                (100..600).random().toFloat(),
+            )
     }
 
     fun openFloatingWindow(
@@ -69,13 +80,60 @@ class MainViewModel {
         val content =
             when (type) {
                 "node_editor" -> {
-                    @androidx.compose.runtime.Composable { nodeEditorWindow() }
+                    @androidx.compose.runtime.Composable {
+                        vertexEditorWindow(
+                            addVertex = {
+                                addVertexToCurrentTab(it)
+                            },
+                            onClose = { closeFloatingWindow(windowId) },
+                        )
+                    }
                 }
                 "edge_editor" -> {
-                    @androidx.compose.runtime.Composable { edgeEditorWindow() }
+                    @androidx.compose.runtime.Composable {
+                        edgeEditorWindow(
+                            graph = tabs[selectedTab].graph,
+                            onClose = { closeFloatingWindow(windowId) },
+                        )
+                    }
                 }
                 "properties" -> {
-                    @androidx.compose.runtime.Composable { propertiesWindow() }
+                    @androidx.compose.runtime.Composable {
+                        val currentTab = tabs[selectedTab]
+                        val selectedVertex =
+                            currentTab.selectedVertex.value?.let {
+                                currentTab.graph[it]
+                            }
+                        propertiesWindow(selectedVertex)
+                    }
+                }
+                "cycle_finder_vertex" -> {
+                    @androidx.compose.runtime.Composable
+                    {
+                        val currentTab = tabs.getOrNull(selectedTab)
+                        if (currentTab != null) {
+                            cycleFinderWindowForVertex(
+                                graph = currentTab.graph,
+                                selectedVertexKey = currentTab.selectedVertex.value,
+                                onCyclesFound = { cycles ->
+                                    currentTab.highlightedVertex.clear()
+                                    cycles.forEach { cycle ->
+                                        cycle.forEach { vKey -> currentTab.highlightedVertex[vKey] = true }
+                                    }
+                                },
+                                onClearHighlight = { currentTab.highlightedVertex.clear() },
+                                onClose = { closeFloatingWindow(windowId) },
+                            )
+                        }
+                    }
+                } "json" -> {
+                    @androidx.compose.runtime.Composable
+                    {
+                        saveTabWindow(
+                            tab = tabs[selectedTab],
+                            onClose = { closeFloatingWindow(windowId) },
+                        )
+                    }
                 }
                 else -> null
             }
