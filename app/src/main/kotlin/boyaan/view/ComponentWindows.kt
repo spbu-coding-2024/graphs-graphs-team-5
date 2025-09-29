@@ -1,5 +1,4 @@
 package boyaan.view
-
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -276,19 +275,16 @@ fun saveTabWindow(
 
         Button(
             onClick = {
-                val dialog = FileDialog(Frame(), "Выберите папку", FileDialog.SAVE)
+                val dialog = FileDialog(null as Frame?, "Выберите JSON")
+                dialog.mode = FileDialog.SAVE
                 dialog.isVisible = true
-                dialog.filenameFilter =
-                    java.io.FilenameFilter { _, name ->
-                        name.lowercase().endsWith(".json")
-                    }
-                if (dialog.directory != null && dialog.file != null) {
-                    var filename = dialog.file
-                    if (!filename.endsWith(".json")) {
-                        filename += ".json"
-                    }
-                    savePath = "${dialog.directory}${dialog.file}"
+                val extension = ".json"
+                var file = dialog.file
+                if (file == null) return@Button
+                if (file.length < extension.length || file.substring(file.length - extension.length) != ".json") {
+                    file += extension
                 }
+                savePath = "${dialog.directory}$file"
             },
             modifier = Modifier.fillMaxWidth(),
         ) {
