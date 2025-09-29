@@ -19,6 +19,11 @@ import org.junit.jupiter.api.Test
 import java.io.File
 
 class IntegrationTest1 {
+    /**
+     * Test checks finding cycle and path in graph
+     *
+     * User create graph -> save it in json file -> load from json -> use algorithm for cycle search -> use Dijkstra algorithm
+     */
     @Test
     fun `create graph, save, load, and run algorithms`() {
         val graph = DirectedWeightedGraph<String, String>()
