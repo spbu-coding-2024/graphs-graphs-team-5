@@ -2,6 +2,6 @@ package boyaan.model.algorithms
 
 import boyaan.model.core.base.Graph
 
-abstract class Algorithm<V, E>(
-    graph: Graph<V, E>,
+internal abstract class Algorithm<V, E>(
+    protected val graph: Graph<V, E>,
 )
