@@ -117,7 +117,7 @@ fun draggableGraphView(
                 Box(
                     modifier = Modifier.offset { IntOffset(mid.x.roundToInt(), mid.y.roundToInt()) },
                 ) {
-                    Text(text = edge.weight.toString(), color = Color.Black, fontSize = 14.sp)
+                    Text(text = edge.weight.toString(), color = MaterialTheme.colors.onSurface, fontSize = 14.sp)
                 }
             }
         }
