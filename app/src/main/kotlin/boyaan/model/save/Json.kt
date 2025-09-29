@@ -64,7 +64,6 @@ fun Offset.toData() = OffsetD(x, y)
 fun OffsetD.toOffset() = Offset(x, y)
 
 fun Graph<String, String>.toData(): GraphD {
-    println(this)
     val type =
         when (this) {
             is DirectedWeightedGraph -> GraphType.DIRECTED_WEIGHTED
