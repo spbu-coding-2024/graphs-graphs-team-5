@@ -63,8 +63,8 @@ class MainViewModel {
             }
     }
 
-    fun selectVertex(v_key: Int) {
-        tabs[selectedTab].selectedVertex.value = v_key
+    fun selectVertex(vKey: Int) {
+        tabs[selectedTab].selectedVertex.value = vKey
     }
 
     fun addVertexToCurrentTab(name: String) {
