@@ -5,7 +5,7 @@
 <hr>
 
 
-## ☋ Supported Graphs
+## ☋ Supported Properties
 
 * Directed
 * Weighted
@@ -48,3 +48,6 @@ You can save and load your graph with
 
 * [Kharisov Bogdan](https://github.com/lospollosenjoyer)
 * [Oderiy Yaroslav](https://github.com/XRenso)
+
+## 🪪 License
+This project is licensed under the [<b>Fight Club Licnse</b>](LICENSE).
