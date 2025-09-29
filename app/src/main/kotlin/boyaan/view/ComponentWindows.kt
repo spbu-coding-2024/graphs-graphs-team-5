@@ -16,6 +16,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import boyaan.model.algorithms.classic.FindCycles
+import boyaan.model.core.base.Graph
 import boyaan.model.core.base.Vertex
 
 @Composable
@@ -103,6 +105,49 @@ fun propertiesWindow(selectedVertex: Vertex<String>?) {
             Text("• ID: ${selectedVertex.key}")
         } else {
             Text("Выберите элемент для просмотра свойств")
+        }
+    }
+}
+
+@Composable
+fun cycleFinderWindowForVertex(
+    graph: Graph<String, String>?,
+    selectedVertexKey: Int?,
+    onCyclesFound: (List<List<Int>>) -> Unit,
+    onClearHighlight: () -> Unit,
+    onClose: () -> Unit,
+) {
+    Column(Modifier.padding(12.dp)) {
+        Text("Поиск циклов из выбранной вершины", style = MaterialTheme.typography.h6)
+        Spacer(Modifier.height(12.dp))
+
+        Button(
+            onClick = {
+                val vertexKey = selectedVertexKey
+                val g = graph
+                if (vertexKey != null && g != null) {
+                    g[vertexKey]?.let { vertex ->
+                        val finder = FindCycles(g)
+                        val cycles = finder.findCycles(vertex)
+                        onCyclesFound(cycles)
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = selectedVertexKey != null && graph != null,
+        ) {
+            Text("Найти циклы")
+        }
+        Spacer(Modifier.height(8.dp))
+        Button(
+            onClick = onClearHighlight,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("Очистить подсветку")
+        }
+        Spacer(Modifier.height(8.dp))
+        Button(onClick = onClose, modifier = Modifier.fillMaxWidth()) {
+            Text("Закрыть")
         }
     }
 }

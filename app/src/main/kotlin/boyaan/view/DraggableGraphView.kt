@@ -17,6 +17,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
@@ -130,10 +131,10 @@ fun draggableGraphView(
                             },
                 ) {
                     val circleColor =
-                        if (isSelected) {
-                            MaterialTheme.colors.primary
-                        } else {
-                            MaterialTheme.colors.secondary
+                        when {
+                            currentTab.highlightedVertex[vertex.key] == true -> Color.Red
+                            isSelected -> MaterialTheme.colors.primary
+                            else -> MaterialTheme.colors.secondary
                         }
 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {

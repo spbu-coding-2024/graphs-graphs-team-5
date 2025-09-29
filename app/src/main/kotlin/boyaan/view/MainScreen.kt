@@ -95,8 +95,17 @@ fun mainScreen(viewModel: MainViewModel) {
                                     onClick = {
                                         viewModel.openFloatingWindow("properties", "Свойства")
                                     },
+                                    modifier = Modifier.padding(end = 8.dp),
                                 ) {
                                     Text("Свойства")
+                                }
+
+                                Button(
+                                    onClick = {
+                                        viewModel.openFloatingWindow("cycle_finder_vertex", "Найти циклы")
+                                    },
+                                ) {
+                                    Text("Найти циклы")
                                 }
                             }
                         }
