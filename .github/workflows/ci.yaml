@@ -1,0 +1,33 @@
+name: Boyaan CI
+
+on:
+  push:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository checkout
+        uses: actions/checkout@v4
+      - name: JDK 23 setup
+        uses: actions/setup-java@v4
+        with:
+          java-version: '23'
+          distribution: 'temurin'
+      - name: Build and test with Gradle Wrapper
+        run: ./gradlew test
+  ktlint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository checkout
+        uses: actions/checkout@v4
+      - name: JDK 23 setup
+        uses: actions/setup-java@v4
+        with:
+          java-version: '23'
+          distribution: 'temurin'
+      - name: Ktlint check
+        run: ./gradlew ktlintCheck
+        continue-on-error: false
