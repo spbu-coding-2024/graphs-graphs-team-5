@@ -6,7 +6,7 @@ import kotlin.math.max
 
 class VoteRank<V, E> {
     fun run(graph: Graph<V, E>): List<Vertex<V>> {
-        val result = mutableListOf<Vertex<V>>()
+        val res = mutableListOf<Vertex<V>>()
         val scores =
             graph.vertices
                 .associateWith { vertex ->
@@ -20,7 +20,7 @@ class VoteRank<V, E> {
                     .maxByOrNull { it.value }
                     ?.key ?: break
 
-            result.add(candidate)
+            res.add(candidate)
             scores[candidate] = 0.0
 
             val degCandidate = degree(graph, candidate).toDouble().coerceAtLeast(1.0)
@@ -29,7 +29,7 @@ class VoteRank<V, E> {
                 scores[neighbor] = max(0.0, oldScore - 1.0 / degCandidate)
             }
         }
-        return result
+        return res
     }
 
     private fun degree(
