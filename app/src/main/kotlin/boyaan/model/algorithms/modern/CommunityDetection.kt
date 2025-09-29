@@ -2,7 +2,7 @@ package boyaan.model.algorithms.modern
 
 import boyaan.model.algorithms.Algorithm
 import boyaan.model.core.base.Edge
-import boyaan.model.core.defaults.weighted.Weighted
+import boyaan.model.core.internals.weighted.Weighted
 import org.jetbrains.research.ictl.louvain.Link
 import org.jetbrains.research.ictl.louvain.computeModularity
 

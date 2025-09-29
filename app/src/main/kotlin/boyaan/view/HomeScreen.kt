@@ -33,7 +33,7 @@ fun homeScreen(
             Text("Создать")
         }
 
-        Spacer(Modifier.height(24.dp)) // отступ между кнопками
+        Spacer(Modifier.height(24.dp))
 
         Button(onClick = onOpen, modifier = Modifier.width(200.dp).height(60.dp)) {
             Icon(Icons.Default.Folder, contentDescription = "Открыть")

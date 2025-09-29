@@ -8,7 +8,7 @@ import androidx.compose.ui.unit.IntSize
 import boyaan.model.FloatingWindow
 import boyaan.model.ScreenState
 import boyaan.model.TabState
-import boyaan.model.core.defaults.DefaultGraph
+import boyaan.model.core.internals.defaults.DefaultGraph
 import boyaan.view.edgeEditorWindow
 import boyaan.view.propertiesWindow
 import boyaan.view.vertexEditorWindow
@@ -30,7 +30,14 @@ class MainViewModel {
     }
 
     fun addTab() {
-        tabs = tabs + TabState(title = "Вкладка ${tabs.size + 1}", graph = DefaultGraph())
+        val g: DefaultGraph<String, String> = DefaultGraph()
+        with(g) {
+            val v1 = addVertex("Hello")
+            val v2 = addVertex("World")
+            addVertex("Yo")
+            addEdge(v1.key, v2.key, "ho")
+        }
+        tabs = tabs + TabState(title = "Вкладка ${tabs.size + 1}", graph = g)
         selectedTab = tabs.lastIndex
     }
 

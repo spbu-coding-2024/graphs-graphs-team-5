@@ -5,8 +5,9 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.geometry.Offset
+import boyaan.model.algorithms.modern.ForceAtlas2
 import boyaan.model.core.base.Graph
-import boyaan.model.core.defaults.DefaultGraph
+import boyaan.model.core.internals.defaults.DefaultGraph
 
 data class TabState(
     var title: String,
@@ -17,4 +18,5 @@ data class TabState(
     var activeWindowId: String? = null,
     val graph: Graph<String, String> = DefaultGraph(),
     val vertexPositions: SnapshotStateMap<Int, Offset> = mutableStateMapOf(),
+    val fa2: ForceAtlas2<String, String> = ForceAtlas2(graph),
 )
