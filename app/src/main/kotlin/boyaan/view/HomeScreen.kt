@@ -10,16 +10,16 @@ import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import boyaan.viewmodel.GraphType
 
 @Composable
 fun homeScreen(
-    onCreate: () -> Unit,
+    onCreate: (GraphType) -> Unit,
     onOpen: () -> Unit,
 ) {
     Column(
@@ -27,10 +27,17 @@ fun homeScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Button(onClick = onCreate, modifier = Modifier.width(200.dp).height(60.dp)) {
-            Icon(Icons.Default.Add, contentDescription = "Создать")
-            Spacer(Modifier.width(8.dp))
-            Text("Создать")
+        Text("Выберите тип графа, который нужно создать:")
+        Spacer(Modifier.height(12.dp))
+
+        GraphType.entries.forEach { type ->
+            Button(
+                onClick = { onCreate(type) },
+                modifier = Modifier.width(200.dp).height(60.dp),
+            ) {
+                Text(type.name)
+            }
+            Spacer(Modifier.height(12.dp))
         }
 
         Spacer(Modifier.height(24.dp))

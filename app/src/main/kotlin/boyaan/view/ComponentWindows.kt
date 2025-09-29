@@ -22,9 +22,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import boyaan.model.TabState
+import boyaan.model.algorithms.classic.Dijkstra
 import boyaan.model.algorithms.classic.FindCycles
 import boyaan.model.core.base.Graph
 import boyaan.model.core.base.Vertex
+import boyaan.model.core.internals.weighted.WeightedGraph
 import boyaan.model.save.TabStateD
 import boyaan.model.save.saveTabToFile
 import boyaan.model.save.toData
@@ -71,6 +73,7 @@ fun edgeEditorWindow(
     var fromVertexKey by remember { mutableStateOf<Int?>(null) }
     var toVertexKey by remember { mutableStateOf<Int?>(null) }
     var edgeData by remember { mutableStateOf("") }
+    var weightText by remember { mutableStateOf("") }
 
     val fromOptions = graph.vertices.map { it.key to it.value }
     val toOptions =
@@ -82,11 +85,9 @@ fun edgeEditorWindow(
         Text("Добавить связь", style = MaterialTheme.typography.h6)
         Spacer(Modifier.height(12.dp))
 
+        // From Vertex
         var fromExpanded by remember { mutableStateOf(false) }
-        ExposedDropdownMenuBox(
-            expanded = fromExpanded,
-            onExpandedChange = { fromExpanded = !fromExpanded },
-        ) {
+        ExposedDropdownMenuBox(expanded = fromExpanded, onExpandedChange = { fromExpanded = !fromExpanded }) {
             OutlinedTextField(
                 value = fromVertexKey?.let { graph[it]?.value } ?: "",
                 onValueChange = {},
@@ -95,10 +96,7 @@ fun edgeEditorWindow(
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = fromExpanded) },
                 modifier = Modifier.fillMaxWidth(),
             )
-            ExposedDropdownMenu(
-                expanded = fromExpanded,
-                onDismissRequest = { fromExpanded = false },
-            ) {
+            ExposedDropdownMenu(expanded = fromExpanded, onDismissRequest = { fromExpanded = false }) {
                 fromOptions.forEach { (key, name) ->
                     DropdownMenuItem(onClick = {
                         fromVertexKey = key
@@ -113,11 +111,9 @@ fun edgeEditorWindow(
 
         Spacer(Modifier.height(8.dp))
 
+        // To Vertex
         var toExpanded by remember { mutableStateOf(false) }
-        ExposedDropdownMenuBox(
-            expanded = toExpanded,
-            onExpandedChange = { toExpanded = !toExpanded },
-        ) {
+        ExposedDropdownMenuBox(expanded = toExpanded, onExpandedChange = { toExpanded = !toExpanded }) {
             OutlinedTextField(
                 value = toVertexKey?.let { graph[it]?.value } ?: "",
                 onValueChange = {},
@@ -126,10 +122,7 @@ fun edgeEditorWindow(
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = toExpanded) },
                 modifier = Modifier.fillMaxWidth(),
             )
-            ExposedDropdownMenu(
-                expanded = toExpanded,
-                onDismissRequest = { toExpanded = false },
-            ) {
+            ExposedDropdownMenu(expanded = toExpanded, onDismissRequest = { toExpanded = false }) {
                 toOptions.forEach { (key, name) ->
                     DropdownMenuItem(onClick = {
                         toVertexKey = key
@@ -151,14 +144,30 @@ fun edgeEditorWindow(
             modifier = Modifier.fillMaxWidth(),
         )
 
-        Spacer(Modifier.height(8.dp))
+        if (graph is WeightedGraph) {
+            Spacer(Modifier.height(8.dp))
+            OutlinedTextField(
+                value = weightText,
+                onValueChange = { weightText = it },
+                label = { Text("Вес ребра") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
+        Spacer(Modifier.height(12.dp))
 
         Button(
             onClick = {
                 val from = fromVertexKey
                 val to = toVertexKey
+                val weight = weightText.toDoubleOrNull()
                 if (from != null && to != null) {
-                    graph.addEdge(from, to, edgeData)
+                    if (graph is WeightedGraph) {
+                        graph.addEdge(from, to, edgeData, weight ?: 1.0)
+                    } else {
+                        graph.addEdge(from, to, edgeData)
+                    }
                     onClose()
                 }
             },
@@ -186,15 +195,15 @@ fun propertiesWindow(selectedVertex: Vertex<String>?) {
 }
 
 @Composable
-fun cycleFinderWindowForVertex(
+fun algorithms(
     graph: Graph<String, String>?,
     selectedVertexKey: Int?,
     onCyclesFound: (List<List<Int>>) -> Unit,
     onClearHighlight: () -> Unit,
-    onClose: () -> Unit,
+    onDijkstraResult: (Dijkstra.Result) -> Unit,
 ) {
     Column(Modifier.padding(12.dp)) {
-        Text("Поиск циклов из выбранной вершины", style = MaterialTheme.typography.h6)
+        Text("Применить алгоритмы на графе", style = MaterialTheme.typography.h6)
         Spacer(Modifier.height(12.dp))
 
         Button(
@@ -215,15 +224,31 @@ fun cycleFinderWindowForVertex(
             Text("Найти циклы")
         }
         Spacer(Modifier.height(8.dp))
+
+        Button(
+            onClick = {
+                val vertexKey = selectedVertexKey
+                val g = graph
+                if (vertexKey != null && g != null) {
+                    g[vertexKey]?.let { vertex ->
+                        val dijkstra = Dijkstra(g)
+                        val result = dijkstra.shortestPaths(vertex)
+                        onDijkstraResult(result)
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = selectedVertexKey != null && graph != null,
+        ) {
+            Text("Алгоритм Дейкстры")
+        }
+        Spacer(Modifier.height(8.dp))
+
         Button(
             onClick = onClearHighlight,
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text("Очистить подсветку")
-        }
-        Spacer(Modifier.height(8.dp))
-        Button(onClick = onClose, modifier = Modifier.fillMaxWidth()) {
-            Text("Закрыть")
         }
     }
 }

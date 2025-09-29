@@ -64,6 +64,7 @@ fun Offset.toData() = OffsetD(x, y)
 fun OffsetD.toOffset() = Offset(x, y)
 
 fun Graph<String, String>.toData(): GraphD {
+    println(this)
     val type =
         when (this) {
             is DirectedWeightedGraph -> GraphType.DIRECTED_WEIGHTED
@@ -87,9 +88,10 @@ fun Graph<String, String>.toData(): GraphD {
 }
 
 fun GraphD.toGraph(): Graph<String, String> {
-    val g: Graph<String, String> =
+    print(type)
+    val g =
         when (type) {
-            GraphType.DEFAULT -> DefaultGraph()
+            GraphType.DEFAULT -> DefaultGraph<String, String>()
             GraphType.DIRECTED -> DirectedUnweightedGraph()
             GraphType.WEIGHTED -> UndirectedWeightedGraph()
             GraphType.DIRECTED_WEIGHTED -> DirectedWeightedGraph()
