@@ -40,11 +40,11 @@ fun homeScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Text("Выберите свойства графа:", fontSize = 20.sp, modifier = Modifier.padding(bottom = 16.dp), fontWeight = FontWeight.Bold)
+        Text("Выберите параметры графа:", fontSize = 20.sp, modifier = Modifier.padding(bottom = 16.dp), fontWeight = FontWeight.Bold)
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(checked = isDirected, onCheckedChange = { isDirected = it })
-            Text("Направленный")
+            Text("Ориентированный")
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(checked = isWeighted, onCheckedChange = { isWeighted = it })
