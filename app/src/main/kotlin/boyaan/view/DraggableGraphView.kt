@@ -29,9 +29,14 @@ import androidx.compose.ui.unit.sp
 import boyaan.model.TabState
 import boyaan.model.algorithms.modern.Vec2
 import boyaan.model.core.base.Graph
+import boyaan.model.core.internals.directed.Directed
+import boyaan.model.core.internals.directed.DirectedGraph
+import boyaan.model.core.internals.weighted.Weighted
+import boyaan.model.core.internals.weighted.WeightedGraph
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
 @Composable
 fun draggableGraphView(
@@ -88,7 +93,33 @@ fun draggableGraphView(
                 val (u, v) = edge.key
                 val uPos = vertexPositions[u] ?: return@forEach
                 val vPos = vertexPositions[v] ?: return@forEach
+
                 drawLine(color = edgeColor, start = uPos, end = vPos, strokeWidth = 3f)
+                if (graph is DirectedGraph) {
+                    val dir = (vPos - uPos).normalize()
+                    val arrowSize = 20f
+                    val perp = Offset(-dir.y, dir.x)
+                    val arrowTip = vPos
+                    val arrowLeft = vPos - dir * arrowSize + perp * (arrowSize / 2)
+                    val arrowRight = vPos - dir * arrowSize - perp * (arrowSize / 2)
+
+                    drawLine(edgeColor, arrowTip, arrowLeft, strokeWidth = 3f)
+                    drawLine(edgeColor, arrowTip, arrowRight, strokeWidth = 3f)
+                }
+            }
+        }
+
+        graph.edges.forEach { edge ->
+            if (graph is WeightedGraph && edge is Weighted) {
+                val uPos = vertexPositions[edge.key.first] ?: return@forEach
+                val vPos = vertexPositions[edge.key.second] ?: return@forEach
+                val mid = Offset((uPos.x + vPos.x) / 2, (uPos.y + vPos.y) / 2)
+
+                Box(
+                    modifier = Modifier.offset { IntOffset(mid.x.roundToInt(), mid.y.roundToInt()) },
+                ) {
+                    Text(text = edge.weight.toString(), color = Color.Black, fontSize = 14.sp)
+                }
             }
         }
 
@@ -147,4 +178,15 @@ fun draggableGraphView(
             }
         }
     }
+}
+
+private operator fun Offset.minus(other: Offset) = Offset(x - other.x, y - other.y)
+
+private operator fun Offset.plus(other: Offset) = Offset(x + other.x, y + other.y)
+
+private operator fun Offset.times(scale: Float) = Offset(x * scale, y * scale)
+
+private fun Offset.normalize(): Offset {
+    val len = sqrt(x * x + y * y)
+    return if (len > 0f) Offset(x / len, y / len) else Offset.Zero
 }

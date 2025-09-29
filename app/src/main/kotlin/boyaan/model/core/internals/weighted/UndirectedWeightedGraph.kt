@@ -25,7 +25,7 @@ internal class UndirectedWeightedGraph<V, E> : WeightedGraph<V, E> {
         e: E,
     ): WeightedEdge<E> = addEdge(uKey, vKey, e, weight = 1.0)
 
-    fun addEdge(
+    override fun addEdge(
         uKey: Int,
         vKey: Int,
         e: E,

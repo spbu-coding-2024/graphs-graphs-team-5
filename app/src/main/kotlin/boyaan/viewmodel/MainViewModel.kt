@@ -8,8 +8,12 @@ import androidx.compose.ui.unit.IntSize
 import boyaan.model.FloatingWindow
 import boyaan.model.ScreenState
 import boyaan.model.TabState
+import boyaan.model.core.base.Graph
 import boyaan.model.core.internals.defaults.DefaultGraph
-import boyaan.view.cycleFinderWindowForVertex
+import boyaan.model.core.internals.directed.DirectedUnweightedGraph
+import boyaan.model.core.internals.directedWeighted.DirectedWeightedGraph
+import boyaan.model.core.internals.weighted.UndirectedWeightedGraph
+import boyaan.view.algorithms
 import boyaan.view.edgeEditorWindow
 import boyaan.view.propertiesWindow
 import boyaan.view.saveTabWindow
@@ -17,11 +21,14 @@ import boyaan.view.vertexEditorWindow
 import java.util.UUID
 import kotlin.let
 
+enum class GraphType { DEFAULT, DIRECTED, WEIGHTED, DIRECTED_WEIGHTED }
+
 class MainViewModel {
     var isDarkTheme by mutableStateOf(false)
     var tabs by mutableStateOf(listOf(TabState("Вкладка 1")))
     var selectedTab by mutableStateOf(0)
     var showOpenDialog by mutableStateOf(false)
+    var graphType by mutableStateOf(GraphType.DEFAULT)
 
     fun toggleTheme() {
         isDarkTheme = !isDarkTheme
@@ -32,7 +39,14 @@ class MainViewModel {
     }
 
     fun addTab() {
-        tabs = tabs + TabState(title = "Вкладка ${tabs.size + 1}", graph = DefaultGraph())
+        val graph: Graph<String, String> =
+            when (graphType) {
+                GraphType.DIRECTED -> DirectedUnweightedGraph()
+                GraphType.WEIGHTED -> UndirectedWeightedGraph()
+                GraphType.DIRECTED_WEIGHTED -> DirectedWeightedGraph()
+                GraphType.DEFAULT -> DefaultGraph()
+            }
+        tabs = tabs + TabState(title = "Вкладка ${tabs.size + 1}", graph = graph)
         selectedTab = tabs.lastIndex
     }
 
@@ -49,13 +63,6 @@ class MainViewModel {
             tabs = listOf(TabState("Вкладка 1", screen = ScreenState.Home))
             selectedTab = 0
         }
-    }
-
-    fun setScreen(screen: ScreenState) {
-        tabs =
-            tabs.toMutableList().also {
-                it[selectedTab] = it[selectedTab].copy(screen = screen)
-            }
     }
 
     fun selectVertex(vKey: Int) {
@@ -107,12 +114,12 @@ class MainViewModel {
                         propertiesWindow(selectedVertex)
                     }
                 }
-                "cycle_finder_vertex" -> {
+                "algorithms" -> {
                     @androidx.compose.runtime.Composable
                     {
                         val currentTab = tabs.getOrNull(selectedTab)
                         if (currentTab != null) {
-                            cycleFinderWindowForVertex(
+                            algorithms(
                                 graph = currentTab.graph,
                                 selectedVertexKey = currentTab.selectedVertex.value,
                                 onCyclesFound = { cycles ->
@@ -122,7 +129,14 @@ class MainViewModel {
                                     }
                                 },
                                 onClearHighlight = { currentTab.highlightedVertex.clear() },
-                                onClose = { closeFloatingWindow(windowId) },
+                                onDijkstraResult = { result ->
+                                    currentTab.highlightedVertex.clear()
+                                    result.distances.forEach { (key, dist) ->
+                                        if (dist < Double.POSITIVE_INFINITY) {
+                                            currentTab.highlightedVertex[key] = true
+                                        }
+                                    }
+                                },
                             )
                         }
                     }
@@ -214,10 +228,5 @@ class MainViewModel {
                     list[selectedTab] = tab.copy(activeWindowId = windowId)
                 }
             }
-    }
-
-    fun getActiveWindow(): FloatingWindow? {
-        val currentTab = tabs.getOrNull(selectedTab) ?: return null
-        return currentTab.floatingWindows.find { it.id == currentTab.activeWindowId }
     }
 }
