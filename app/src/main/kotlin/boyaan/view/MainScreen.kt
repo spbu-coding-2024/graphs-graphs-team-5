@@ -30,12 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import boyaan.model.ScreenState
 import boyaan.model.TabState
-import boyaan.model.core.internals.defaults.DefaultGraph
-import boyaan.model.core.internals.directed.DirectedUnweightedGraph
-import boyaan.model.core.internals.directedWeighted.DirectedWeightedGraph
-import boyaan.model.core.internals.weighted.UndirectedWeightedGraph
 import boyaan.model.save.loadTabFromFile
-import boyaan.viewmodel.GraphType
 import boyaan.viewmodel.MainViewModel
 import java.awt.FileDialog
 import java.awt.Frame
@@ -149,15 +144,8 @@ fun mainScreen(
                 when (currentTab.screen) {
                     ScreenState.Home ->
                         homeScreen(
-                            onCreate = { type ->
+                            onCreate = { graph ->
                                 val currentTab = viewModel.tabs[viewModel.selectedTab]
-                                val graph =
-                                    when (type) {
-                                        GraphType.DIRECTED -> DirectedUnweightedGraph<String, String>()
-                                        GraphType.WEIGHTED -> UndirectedWeightedGraph()
-                                        GraphType.DIRECTED_WEIGHTED -> DirectedWeightedGraph()
-                                        GraphType.DEFAULT -> DefaultGraph()
-                                    }
                                 val tab = TabState(title = currentTab.title, graph = graph, screen = ScreenState.Graph)
                                 val newTabs = viewModel.tabs.toMutableList()
                                 newTabs[viewModel.selectedTab] = tab
