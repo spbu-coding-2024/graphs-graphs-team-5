@@ -2,11 +2,11 @@ package boyaan.model.algorithms.classic
 
 import boyaan.model.core.base.Graph
 import boyaan.model.core.base.Vertex
-import boyaan.model.core.internals.directed.Directed
+import boyaan.model.core.internals.directed.DirectedGraph
 import boyaan.model.core.internals.weighted.Weighted
 import java.util.PriorityQueue
 
-class Dijkstra<V, E>(
+public class Dijkstra<V, E>(
     private val graph: Graph<V, E>,
 ) {
     data class Result(
@@ -42,19 +42,26 @@ class Dijkstra<V, E>(
         return Result(distances, previous)
     }
 
-    private fun getNeighbors(vertexKey: Int): List<Pair<Int, Double>> =
-        graph.edges.mapNotNull { edge ->
-            val (from, to) = edge.key
-            var weight = 1.0
-            if (edge is Weighted) {
-                weight = edge.weight
+    private fun getNeighbors(vertexKey: Int): List<Pair<Int, Double>> {
+        return if (graph is DirectedGraph) {
+            graph.edges.mapNotNull { edge ->
+                val (from, to) = edge.key
+                if (from != vertexKey) return@mapNotNull null
+                val weight = if (edge is Weighted) edge.weight else 1.0
+                to to weight
             }
-            when {
-                from == vertexKey -> to to weight
-                to == vertexKey && graph !is Directed -> from to weight
-                else -> null
+        } else {
+            graph.edges.mapNotNull { edge ->
+                val (from, to) = edge.key
+                val weight = if (edge is Weighted) edge.weight else 1.0
+                when (vertexKey) {
+                    from -> to to weight
+                    to -> from to weight
+                    else -> null
+                }
             }
         }
+    }
 
     fun reconstructPath(
         previous: Map<Int, Int?>,

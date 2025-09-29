@@ -3,9 +3,10 @@ package boyaan.model.algorithms.classic
 import boyaan.model.algorithms.Algorithm
 import boyaan.model.core.base.Graph
 import boyaan.model.core.base.Vertex
+import boyaan.model.core.internals.directed.DirectedGraph
 
 internal class FindCycles<V, E>(
-    private val graph: Graph<V, E>,
+    graph: Graph<V, E>,
 ) : Algorithm<V, E>(graph) {
     fun findCycles(start: Vertex<V>): List<List<Int>> {
         val visited = mutableSetOf<Int>()
@@ -19,25 +20,30 @@ internal class FindCycles<V, E>(
             stack.add(current.key)
             visited.add(current.key)
 
-            for (edge in graph.edges) {
-                val neighborKey =
-                    when (current.key) {
-                        edge.key.first -> edge.key.second
-                        edge.key.second -> edge.key.first
-                        else -> continue
+            val neighbors: List<Vertex<V>> =
+                if (graph is DirectedGraph) {
+                    graph.edges
+                        .filter { it.key.first == current.key }
+                        .mapNotNull { graph[it.key.second] }
+                } else {
+                    graph.edges.flatMap { edge ->
+                        when (current.key) {
+                            edge.key.first -> listOfNotNull(graph[edge.key.second])
+                            edge.key.second -> listOfNotNull(graph[edge.key.first])
+                            else -> emptyList()
+                        }
                     }
+                }
 
-                if (parent != null && neighborKey == parent.key) continue
+            for (neighbor in neighbors) {
+                if (parent != null && neighbor.key == parent.key) continue
 
-                if (neighborKey in stack) {
-                    val cycleStartIndex = stack.indexOf(neighborKey)
+                if (neighbor.key in stack) {
+                    val cycleStartIndex = stack.indexOf(neighbor.key)
                     val cycle = stack.subList(cycleStartIndex, stack.size).toList()
-                    if (cycle.size > 1) {
-                        cycles.add(canonicalCycle(cycle))
-                    }
-                } else if (neighborKey !in visited) {
-                    val neighborVertex = graph[neighborKey] ?: continue
-                    dfs(neighborVertex, current)
+                    if (cycle.size > 1) cycles.add(canonicalCycle(cycle))
+                } else if (neighbor.key !in visited) {
+                    dfs(neighbor, current)
                 }
             }
 

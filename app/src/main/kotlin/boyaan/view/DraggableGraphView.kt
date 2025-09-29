@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.sp
 import boyaan.model.TabState
 import boyaan.model.algorithms.modern.Vec2
 import boyaan.model.core.base.Graph
-import boyaan.model.core.internals.directed.Directed
 import boyaan.model.core.internals.directed.DirectedGraph
 import boyaan.model.core.internals.weighted.Weighted
 import boyaan.model.core.internals.weighted.WeightedGraph
@@ -97,7 +96,7 @@ fun draggableGraphView(
                 drawLine(color = edgeColor, start = uPos, end = vPos, strokeWidth = 3f)
                 if (graph is DirectedGraph) {
                     val dir = (vPos - uPos).normalize()
-                    val arrowSize = 20f
+                    val arrowSize = 35f
                     val perp = Offset(-dir.y, dir.x)
                     val arrowTip = vPos
                     val arrowLeft = vPos - dir * arrowSize + perp * (arrowSize / 2)
@@ -179,12 +178,6 @@ fun draggableGraphView(
         }
     }
 }
-
-private operator fun Offset.minus(other: Offset) = Offset(x - other.x, y - other.y)
-
-private operator fun Offset.plus(other: Offset) = Offset(x + other.x, y + other.y)
-
-private operator fun Offset.times(scale: Float) = Offset(x * scale, y * scale)
 
 private fun Offset.normalize(): Offset {
     val len = sqrt(x * x + y * y)
