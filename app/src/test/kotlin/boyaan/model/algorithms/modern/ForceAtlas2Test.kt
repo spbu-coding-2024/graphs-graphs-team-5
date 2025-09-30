@@ -4,6 +4,7 @@ import boyaan.model.core.internals.defaults.DefaultGraph
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
@@ -95,6 +96,33 @@ class ForceAtlas2Test {
         assertNotNull(after)
         if (after == null || before == null) return
         assertTrue(after > before, "Disconnected vertices should move apart")
+    }
+
+    @Test
+    fun `addVertex adds new vertex with position`() {
+        val graph = DefaultGraph<String, String>()
+        val fa2 = ForceAtlas2(graph)
+
+        val newKey = graph.addVertex("v1").key
+        fa2.addVertex(newKey)
+
+        val positions = fa2.positionsSnapshot()
+        assertNotNull(positions[newKey], "New vertex should have a position")
+    }
+
+    @Test
+    fun `addVertex does not overwrite existing vertex`() {
+        val graph = DefaultGraph<String, String>()
+        val fa2 = ForceAtlas2(graph)
+
+        val newKey = graph.addVertex("v1").key
+        fa2.addVertex(newKey)
+        val initialPosition = fa2.positionsSnapshot()[newKey]
+
+        fa2.addVertex(newKey)
+        val afterPosition = fa2.positionsSnapshot()[newKey]
+
+        assertEquals(initialPosition, afterPosition, "Existing vertex position should not change")
     }
 
     private fun safeDistance(
