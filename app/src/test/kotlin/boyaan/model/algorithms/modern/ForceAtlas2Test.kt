@@ -45,26 +45,28 @@ class ForceAtlas2Test {
     ) {
         val g =
             DefaultGraph<String, String>().apply {
-                val v1 = addVertex(v1)
-                val v2 = addVertex(v2)
-                addEdge(v1.key, v2.key, "")
+                val vertex1 = addVertex(v1)
+                val vertex2 = addVertex(v2)
+                addEdge(vertex1.key, vertex2.key, "")
             }
-        val vertexKeys = g.vertices.map { it.key }
-        if (vertexKeys.size < 2) return
 
-        val key1 = vertexKeys[0]
-        val key2 = vertexKeys[1]
+        val keys = g.vertices.map { it.key }
+        if (keys.size < 2) return
 
         val fa2 = ForceAtlas2(g)
-        val before = safeDistance(fa2, key1, key2)
 
+        fa2.setPosition(keys[0], Vec2(100.0, 100.0))
+        fa2.setPosition(keys[1], Vec2(300.0, 100.0))
+
+        val before = safeDistance(fa2, keys[0], keys[1])
         repeat(500) { fa2.step(null, null) }
+        val after = safeDistance(fa2, keys[0], keys[1])
 
-        val after = safeDistance(fa2, key1, key2)
         assertNotNull(before)
         assertNotNull(after)
-        if (after == null || before == null) return
-        assertTrue(after < before, "Connected vertices should move closer")
+        if (before != null && after != null) {
+            assertTrue(after < before, "Connected vertices should move closer")
+        }
     }
 
     @ParameterizedTest
@@ -79,22 +81,23 @@ class ForceAtlas2Test {
                 addVertex(v2)
             }
 
-        val vertexKeys = g.vertices.map { it.key }
-        if (vertexKeys.size < 2) return
-
-        val key1 = vertexKeys[0]
-        val key2 = vertexKeys[1]
+        val keys = g.vertices.map { it.key }
+        if (keys.size < 2) return
 
         val fa2 = ForceAtlas2(g)
-        val before = safeDistance(fa2, key1, key2)
 
+        fa2.setPosition(keys[0], Vec2(100.0, 100.0))
+        fa2.setPosition(keys[1], Vec2(200.0, 100.0))
+
+        val before = safeDistance(fa2, keys[0], keys[1])
         repeat(500) { fa2.step(null, null) }
+        val after = safeDistance(fa2, keys[0], keys[1])
 
-        val after = safeDistance(fa2, key1, key2)
         assertNotNull(before)
         assertNotNull(after)
-        if (after == null || before == null) return
-        assertTrue(after > before, "Disconnected vertices should move apart")
+        if (before != null && after != null) {
+            assertTrue(after > before, "Disconnected vertices should move apart")
+        }
     }
 
     private fun safeDistance(
@@ -105,10 +108,6 @@ class ForceAtlas2Test {
         val pos = fa2.positionsSnapshot()
         val pu = pos[u]
         val pv = pos[v]
-        return pu?.let { uPos ->
-            pv?.let { vPos ->
-                (uPos - vPos).norm()
-            }
-        }
+        return if (pu != null && pv != null) (pu - pv).norm() else null
     }
 }
