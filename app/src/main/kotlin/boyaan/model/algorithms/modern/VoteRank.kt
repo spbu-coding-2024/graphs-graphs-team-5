@@ -5,28 +5,21 @@ import boyaan.model.core.base.Vertex
 import kotlin.math.max
 
 class VoteRank<V, E> {
-    fun run(graph: Graph<V, E>): List<Vertex<V>> {
+    fun run(
+        graph: Graph<V, E>,
+        topK: Int = Int.MAX_VALUE,
+    ): List<Vertex<V>> {
         val res = mutableListOf<Vertex<V>>()
-        val scores =
-            graph.vertices
-                .associateWith { vertex ->
-                    degree(graph, vertex).toDouble()
-                }.toMutableMap()
+        val scores = graph.vertices.associateWith { degree(graph, it).toDouble() }.toMutableMap()
 
-        while (scores.values.any { it > 0.0 }) {
-            val candidate =
-                scores
-                    .filter { it.value > 0.0 }
-                    .maxByOrNull { it.value }
-                    ?.key ?: break
-
+        while (scores.values.any { it > 0.0 } && res.size < topK) {
+            val candidate = scores.filter { it.value > 0.0 }.maxByOrNull { it.value }?.key ?: break
             res.add(candidate)
             scores[candidate] = 0.0
 
             val degCandidate = degree(graph, candidate).toDouble().coerceAtLeast(1.0)
             neighbors(graph, candidate).forEach { neighbor ->
-                val oldScore = scores[neighbor] ?: 0.0
-                scores[neighbor] = max(0.0, oldScore - 1.0 / degCandidate)
+                scores[neighbor] = max(0.0, (scores[neighbor] ?: 0.0) - 1.0 / degCandidate)
             }
         }
         return res
