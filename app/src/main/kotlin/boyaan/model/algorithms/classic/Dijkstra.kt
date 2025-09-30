@@ -4,6 +4,7 @@ import boyaan.model.core.base.Graph
 import boyaan.model.core.base.Vertex
 import boyaan.model.core.internals.directed.DirectedGraph
 import boyaan.model.core.internals.weighted.Weighted
+import boyaan.model.core.internals.weighted.WeightedGraph
 import java.util.PriorityQueue
 
 public class Dijkstra<V, E>(
@@ -15,6 +16,8 @@ public class Dijkstra<V, E>(
     )
 
     private fun validateGraphNoNegativeWeights(): Boolean {
+        if (graph !is WeightedGraph) return true
+
         for (edge in graph.edges) {
             val weight = if (edge is Weighted) edge.weight else 1.0
             if (weight < 0.0) {
