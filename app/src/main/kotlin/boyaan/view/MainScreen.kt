@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -149,33 +148,7 @@ fun mainScreen(
                                 newTabs[viewModel.selectedTab] = tab
                                 viewModel.tabs = newTabs
                             },
-                            onOpen = { viewModel.showOpenDialog = true },
-                        )
-                    ScreenState.Graph -> {
-                        val currentTab = viewModel.tabs[viewModel.selectedTab]
-
-                        graphScreen(
-                            graph = currentTab.graph,
-                            floatingWindows = currentTab.floatingWindows,
-                            activeWindowId = currentTab.activeWindowId,
-                            onCloseWindow = { windowId -> viewModel.closeFloatingWindow(windowId) },
-                            onMoveWindow = { windowId, newOffset -> viewModel.moveFloatingWindow(windowId, newOffset) },
-                            onActivateWindow = { windowId -> viewModel.activateWindow(windowId) },
-                            onVertexSelected = { vKey -> viewModel.selectVertex(vKey) },
-                            currentTab = currentTab,
-                        )
-                    }
-                }
-            }
-
-            if (viewModel.showOpenDialog) {
-                AlertDialog(
-                    onDismissRequest = { viewModel.showOpenDialog = false },
-                    title = { Text("Открыть") },
-                    text = {
-                        Column {
-                            Button(onClick = { viewModel.showOpenDialog = false }, modifier = Modifier.fillMaxWidth()) { Text("SQL") }
-                            Button(onClick = {
+                            onOpen = {
                                 val dialog = javax.swing.JFileChooser()
                                 dialog.dialogTitle = "Загрузить JSON"
                                 dialog.fileSelectionMode = javax.swing.JFileChooser.FILES_ONLY
@@ -194,12 +167,23 @@ fun mainScreen(
                                         onTabLoaded(loadedTab)
                                     }
                                 }
-                                viewModel.showOpenDialog = false
-                            }, modifier = Modifier.fillMaxWidth()) { Text("JSON") }
-                        }
-                    },
-                    confirmButton = {},
-                )
+                            },
+                        )
+                    ScreenState.Graph -> {
+                        val currentTab = viewModel.tabs[viewModel.selectedTab]
+
+                        graphScreen(
+                            graph = currentTab.graph,
+                            floatingWindows = currentTab.floatingWindows,
+                            activeWindowId = currentTab.activeWindowId,
+                            onCloseWindow = { windowId -> viewModel.closeFloatingWindow(windowId) },
+                            onMoveWindow = { windowId, newOffset -> viewModel.moveFloatingWindow(windowId, newOffset) },
+                            onActivateWindow = { windowId -> viewModel.activateWindow(windowId) },
+                            onVertexSelected = { vKey -> viewModel.selectVertex(vKey) },
+                            currentTab = currentTab,
+                        )
+                    }
+                }
             }
         }
     }
