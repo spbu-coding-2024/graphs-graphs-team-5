@@ -5,6 +5,7 @@ import boyaan.model.core.base.Vertex
 import boyaan.model.core.internals.defaults.DefaultGraph
 import boyaan.model.core.internals.directed.DirectedUnweightedGraph
 import boyaan.model.core.internals.directedWeighted.DirectedWeightedGraph
+import boyaan.model.core.internals.weighted.UndirectedWeightedGraph
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -82,6 +83,22 @@ class DijkstraTest {
                         val v1 = addVertex(1)
                         addVertex(2)
                         addEdge(v0.key, v1.key, "01")
+                    },
+                startVertexKey = 0,
+                targetVertexKey = 2,
+                expectedDistance = null,
+                expectedPath = null,
+            ),
+            TestCase(
+                description = "Graph with negative edges",
+                graph =
+                    UndirectedWeightedGraph<Int, String>().apply {
+                        val v0 = addVertex(0)
+                        val v1 = addVertex(1)
+                        val v2 = addVertex(2)
+                        addEdge(v0.key, v1.key, "01", -2.0)
+                        addEdge(v0.key, v2.key, "12", 3.0)
+                        addEdge(v1.key, v2.key, "02", -5.0)
                     },
                 startVertexKey = 0,
                 targetVertexKey = 2,
