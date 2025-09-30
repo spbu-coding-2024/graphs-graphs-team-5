@@ -27,6 +27,7 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.ktlint)
     implementation("com.github.JetBrains-Research:louvain:main-SNAPSHOT")
+    implementation("org.neo4j.driver:neo4j-java-driver:5.14.0")
 }
 
 java {
