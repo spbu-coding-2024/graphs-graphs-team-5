@@ -42,9 +42,7 @@ Download project from github and start command from project root
 <p align="start"><img src="https://i.imgur.com/3FkB2wb.png" height="512" alt="window system" /> </p>
 
 ## ⚙️ Save/Load
-You can save and load your graph with
-* JSON files
-* SQLite database
+You can save and load your graph with JSON files
 
 
 
