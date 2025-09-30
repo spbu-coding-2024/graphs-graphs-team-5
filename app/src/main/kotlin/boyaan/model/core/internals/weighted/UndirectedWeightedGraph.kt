@@ -23,19 +23,23 @@ internal class UndirectedWeightedGraph<V, E> : WeightedGraph<V, E> {
         uKey: Int,
         vKey: Int,
         e: E,
-    ): WeightedEdge<E> = addEdge(uKey, vKey, e, weight = 1.0)
+    ): WeightedEdge<E>? = addEdge(uKey, vKey, e, weight = 1.0)
 
     override fun addEdge(
         uKey: Int,
         vKey: Int,
         e: E,
         weight: Double,
-    ): WeightedEdge<E> =
-        _edges[uKey to vKey]
-            ?: _edges
-                .getOrPut(vKey to uKey) {
-                    WeightedEdge(uKey to vKey, e, weight)
+    ): WeightedEdge<E>? =
+        if (uKey == vKey) {
+            null
+        } else {
+            _vertices[uKey]?.let {
+                _vertices[vKey]?.let {
+                    _edges[uKey to vKey] ?: _edges.getOrPut(vKey to uKey) { WeightedEdge(uKey to vKey, e, weight) }
                 }
+            }
+        }
 
     override operator fun get(key: Int): DefaultVertex<V>? = _vertices[key]
 
