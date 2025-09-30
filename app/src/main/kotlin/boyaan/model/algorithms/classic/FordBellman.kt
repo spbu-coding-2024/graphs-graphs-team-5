@@ -1,18 +1,20 @@
 package boyaan.model.algorithms.classic
 
-import boyaan.model.core.base.Vertex
 import boyaan.model.core.base.Graph
+import boyaan.model.core.base.Vertex
 import boyaan.model.core.internals.weighted.Weighted
 
 data class FordBellmanResult<V>(
     val distances: Map<Vertex<V>, Double>,
     val predecessors: Map<Vertex<V>, Vertex<V>?>,
-    val negativeCycle: Boolean
+    val negativeCycle: Boolean,
 )
 
-class FordBellman<V,E> {
-
-    fun run(graph: Graph<V, E>, start: Vertex<V>): FordBellmanResult<V> {
+class FordBellman<V, E> {
+    fun run(
+        graph: Graph<V, E>,
+        start: Vertex<V>,
+    ): FordBellmanResult<V> {
         val vertexDistances = graph.vertices.associateWith { Double.POSITIVE_INFINITY }.toMutableMap()
         val vertexPredecessors = graph.vertices.associateWith { null as Vertex<V>? }.toMutableMap()
 
@@ -21,12 +23,12 @@ class FordBellman<V,E> {
         val weightedEdgesAsEdges = graph.edges.filter { it is Weighted }
 
         val numberOfVertices = graph.vertices.size
-        if(numberOfVertices <= 1){
+        if (numberOfVertices <= 1) {
             return FordBellmanResult(vertexDistances, vertexPredecessors, negativeCycle = false)
         }
 
         repeat(numberOfVertices - 1) {
-            for(edge in weightedEdgesAsEdges){
+            for (edge in weightedEdgesAsEdges) {
                 val edgeKey = edge.key
                 val sourceVertex = graph[edgeKey.first] ?: continue
                 val targetVertex = graph[edgeKey.second] ?: continue
@@ -34,7 +36,7 @@ class FordBellman<V,E> {
                 val edgeWeight = (edge as Weighted).weight
 
                 val newDistance = vertexDistances[sourceVertex]!! + edgeWeight
-                if (newDistance < vertexDistances[targetVertex]!!){
+                if (newDistance < vertexDistances[targetVertex]!!) {
                     vertexDistances[targetVertex] = newDistance
                     vertexPredecessors[targetVertex] = sourceVertex
                 }
@@ -45,7 +47,7 @@ class FordBellman<V,E> {
         for (edge in weightedEdgesAsEdges) {
             val edgeKey = edge.key
             val sourceVertex = graph[edgeKey.first] ?: continue
-            val targetVertex = graph[edgeKey.second] ?:  continue
+            val targetVertex = graph[edgeKey.second] ?: continue
             val edgeWeight = (edge as Weighted).weight
 
             if (vertexDistances[sourceVertex]!! + edgeWeight < vertexDistances[targetVertex]!!) {
@@ -56,7 +58,7 @@ class FordBellman<V,E> {
         return FordBellmanResult(
             distances = vertexDistances,
             predecessors = vertexPredecessors,
-            negativeCycle = containsNegativeCycle
+            negativeCycle = containsNegativeCycle,
         )
     }
 }
