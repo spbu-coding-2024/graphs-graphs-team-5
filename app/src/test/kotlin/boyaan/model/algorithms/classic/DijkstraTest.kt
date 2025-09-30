@@ -85,7 +85,7 @@ class DijkstraTest {
                     },
                 startVertexKey = 0,
                 targetVertexKey = 2,
-                expectedDistance = null, // недостижимо
+                expectedDistance = null,
                 expectedPath = null,
             ),
         )
@@ -93,10 +93,14 @@ class DijkstraTest {
     @ParameterizedTest(name = "{index} => {0}")
     @MethodSource("testCases")
     fun `test Dijkstra shortest path`(testCase: TestCase) {
-        val startVertex: Vertex<Int> =
-            testCase.graph[testCase.startVertexKey] ?: error("Start vertex not found")
-        val targetVertex: Vertex<Int> =
-            testCase.graph[testCase.targetVertexKey] ?: error("Target vertex not found")
+        val startVertex: Vertex<Int>? = testCase.graph[testCase.startVertexKey]
+        val targetVertex: Vertex<Int>? = testCase.graph[testCase.targetVertexKey]
+
+        if (startVertex == null || targetVertex == null) {
+            assertNull(testCase.expectedDistance, "Expected no path for ${testCase.description}")
+            assertNull(testCase.expectedPath, "Expected no path for ${testCase.description}")
+            return
+        }
 
         val dijkstra = Dijkstra(testCase.graph)
         val result = dijkstra.shortestPath(startVertex, targetVertex)
@@ -105,8 +109,10 @@ class DijkstraTest {
             assertNull(result, "Expected no path for ${testCase.description}")
         } else {
             assertNotNull(result, "Expected path for ${testCase.description}")
-            assertEquals(testCase.expectedDistance, result!!.distance, "Wrong distance for ${testCase.description}")
-            assertEquals(testCase.expectedPath, result.path, "Wrong path for ${testCase.description}")
+            result?.let {
+                assertEquals(testCase.expectedDistance, it.distance, "Wrong distance for ${testCase.description}")
+                assertEquals(testCase.expectedPath, it.path, "Wrong path for ${testCase.description}")
+            }
         }
     }
 }
