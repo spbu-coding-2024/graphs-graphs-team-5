@@ -72,9 +72,8 @@ class IntegrationTest1 {
                 )
 
                 val dijkstra = Dijkstra(loadedGraph)
-                val result = dijkstra.shortestPaths(start)
-                val pathToC = dijkstra.reconstructPath(result.previous, v3.key)
-                assertEquals(listOf(v1.key, v2.key, v3.key), pathToC, "path from A to C must be correct")
+                val result = dijkstra.shortestPath(start, v3) ?: error("Not found path")
+                assertEquals(listOf(v1.key, v2.key, v3.key), result.path, "path from A to C must be correct")
             }
         }
     }

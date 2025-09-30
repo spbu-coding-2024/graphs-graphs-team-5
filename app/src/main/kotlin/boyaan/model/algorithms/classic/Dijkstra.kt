@@ -9,12 +9,15 @@ import java.util.PriorityQueue
 public class Dijkstra<V, E>(
     private val graph: Graph<V, E>,
 ) {
-    data class Result(
-        val distances: Map<Int, Double>,
-        val previous: Map<Int, Int?>,
+    data class PathResult(
+        val distance: Double,
+        val path: List<Int>,
     )
 
-    fun shortestPaths(start: Vertex<V>): Result {
+    fun shortestPath(
+        start: Vertex<V>,
+        target: Vertex<V>,
+    ): PathResult? {
         val distances = graph.vertices.associate { it.key to Double.POSITIVE_INFINITY }.toMutableMap()
         val previous = graph.vertices.associate { it.key to null as Int? }.toMutableMap()
 
@@ -25,6 +28,10 @@ public class Dijkstra<V, E>(
 
         while (pq.isNotEmpty()) {
             val (currentDist, currentKey) = pq.poll()
+            if (currentKey == target.key) {
+                val path = reconstructPath(previous, target.key)
+                return PathResult(currentDist, path)
+            }
             if (currentDist > (distances[currentKey] ?: Double.POSITIVE_INFINITY)) continue
 
             for ((neighborKey, weight) in getNeighbors(currentKey)) {
@@ -38,8 +45,7 @@ public class Dijkstra<V, E>(
                 }
             }
         }
-
-        return Result(distances, previous)
+        return null
     }
 
     private fun getNeighbors(vertexKey: Int): List<Pair<Int, Double>> {
