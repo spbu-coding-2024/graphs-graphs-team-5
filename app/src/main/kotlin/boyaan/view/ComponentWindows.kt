@@ -196,7 +196,7 @@ fun algorithms(
     selectedVertexKey: Int?,
     onCyclesFound: (List<List<Int>>) -> Unit,
     onClearHighlight: () -> Unit,
-    onDijkstraResult: (Dijkstra.Result) -> Unit,
+    openWindow: (String, String) -> Unit,
 ) {
     Column(Modifier.padding(12.dp)) {
         Text("Применить алгоритмы на графе", style = MaterialTheme.typography.h6)
@@ -221,13 +221,7 @@ fun algorithms(
 
         Button(
             onClick = {
-                if (selectedVertexKey != null && graph != null) {
-                    graph[selectedVertexKey]?.let { vertex ->
-                        val dijkstra = Dijkstra(graph)
-                        val result = dijkstra.shortestPaths(vertex)
-                        onDijkstraResult(result)
-                    }
-                }
+                openWindow("dijkstra", "Алгоритм Дейкстры")
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = selectedVertexKey != null && graph != null,
@@ -310,6 +304,100 @@ fun saveTabWindow(
 
         Button(onClick = onClose, modifier = Modifier.fillMaxWidth()) {
             Text("Отмена")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun dijkstraWindow(
+    currentTab: TabState,
+    onRun: (Dijkstra.PathResult?) -> Unit,
+    onClose: () -> Unit,
+) {
+    var startVertexKey by remember { mutableStateOf(currentTab.selectedVertex.value) }
+    var targetVertexKey by remember { mutableStateOf<Int?>(null) }
+
+    val startOptions =
+        currentTab.graph.vertices
+            .filter { it.key != targetVertexKey }
+            .map { it.key to it.value }
+    val targetOptions =
+        currentTab.graph.vertices
+            .filter { it.key != startVertexKey }
+            .map { it.key to it.value }
+
+    Column(Modifier.padding(12.dp)) {
+        Text("Алгоритм Дейкстры", style = MaterialTheme.typography.h6)
+        Spacer(Modifier.height(12.dp))
+
+        var startExpanded by remember { mutableStateOf(false) }
+        ExposedDropdownMenuBox(expanded = startExpanded, onExpandedChange = { startExpanded = !startExpanded }) {
+            OutlinedTextField(
+                value = startVertexKey?.let { key -> currentTab.graph[key]?.value } ?: "",
+                onValueChange = {},
+                label = { Text("Начальная вершина") },
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = startExpanded) },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            ExposedDropdownMenu(expanded = startExpanded, onDismissRequest = { startExpanded = false }) {
+                startOptions.forEach { (key, name) ->
+                    DropdownMenuItem(onClick = {
+                        startVertexKey = key
+                        if (targetVertexKey == key) targetVertexKey = null
+                        startExpanded = false
+                    }) {
+                        Text(name)
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        var targetExpanded by remember { mutableStateOf(false) }
+        ExposedDropdownMenuBox(expanded = targetExpanded, onExpandedChange = { targetExpanded = !targetExpanded }) {
+            OutlinedTextField(
+                value = targetVertexKey?.let { key -> currentTab.graph[key]?.value } ?: "",
+                onValueChange = {},
+                label = { Text("Конечная вершина") },
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = targetExpanded) },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            ExposedDropdownMenu(expanded = targetExpanded, onDismissRequest = { targetExpanded = false }) {
+                targetOptions.forEach { (key, name) ->
+                    DropdownMenuItem(onClick = {
+                        targetVertexKey = key
+                        targetExpanded = false
+                    }) {
+                        Text(name)
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        Button(
+            onClick = {
+                val startKey = startVertexKey
+                val targetKey = targetVertexKey
+                val startVertex = startKey?.let { currentTab.graph[it] }
+                val targetVertex = targetKey?.let { currentTab.graph[it] }
+
+                if (startVertex != null && targetVertex != null) {
+                    val dijkstra = Dijkstra(currentTab.graph)
+                    val result = dijkstra.shortestPath(startVertex, targetVertex)
+                    onRun(result)
+                    onClose()
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = startVertexKey != null && targetVertexKey != null,
+        ) {
+            Text("Выполнить")
         }
     }
 }

@@ -14,6 +14,7 @@ import boyaan.model.core.internals.directed.DirectedUnweightedGraph
 import boyaan.model.core.internals.directedWeighted.DirectedWeightedGraph
 import boyaan.model.core.internals.weighted.UndirectedWeightedGraph
 import boyaan.view.algorithms
+import boyaan.view.dijkstraWindow
 import boyaan.view.edgeEditorWindow
 import boyaan.view.propertiesWindow
 import boyaan.view.saveTabWindow
@@ -129,14 +130,7 @@ class MainViewModel {
                                     }
                                 },
                                 onClearHighlight = { currentTab.highlightedVertex.clear() },
-                                onDijkstraResult = { result ->
-                                    currentTab.highlightedVertex.clear()
-                                    result.distances.forEach { (key, dist) ->
-                                        if (dist < Double.POSITIVE_INFINITY) {
-                                            currentTab.highlightedVertex[key] = true
-                                        }
-                                    }
-                                },
+                                openWindow = { type, title -> openFloatingWindow(type, title) },
                             )
                         }
                     }
@@ -146,6 +140,21 @@ class MainViewModel {
                         saveTabWindow(
                             tab = tabs[selectedTab],
                             onClose = { closeFloatingWindow(windowId) },
+                        )
+                    }
+                }
+                "dijkstra" -> {
+                    @androidx.compose.runtime.Composable
+                    {
+                        dijkstraWindow(
+                            currentTab = tabs[selectedTab],
+                            onClose = { closeFloatingWindow(windowId) },
+                            onRun = { result ->
+                                tabs[selectedTab].highlightedVertex.clear()
+                                result?.path?.forEach { vKey ->
+                                    tabs[selectedTab].highlightedVertex[vKey] = true
+                                }
+                            },
                         )
                     }
                 }

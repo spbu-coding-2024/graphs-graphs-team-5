@@ -6,6 +6,8 @@ import boyaan.model.core.internals.defaults.DefaultGraph
 import boyaan.model.core.internals.directed.DirectedUnweightedGraph
 import boyaan.model.core.internals.directedWeighted.DirectedWeightedGraph
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -16,8 +18,9 @@ class DijkstraTest {
         val description: String,
         val graph: Graph<Int, String>,
         val startVertexKey: Int,
-        val expectedDistances: Map<Int, Double>,
-        val expectedPath: Pair<Int, List<Int>>? = null,
+        val targetVertexKey: Int,
+        val expectedDistance: Double?,
+        val expectedPath: List<Int>?,
     )
 
     fun testCases(): List<TestCase> =
@@ -34,8 +37,9 @@ class DijkstraTest {
                         addEdge(v0.key, v2.key, "02")
                     },
                 startVertexKey = 0,
-                expectedDistances = mapOf(0 to 0.0, 1 to 1.0, 2 to 1.0),
-                expectedPath = 2 to listOf(0, 2),
+                targetVertexKey = 2,
+                expectedDistance = 1.0,
+                expectedPath = listOf(0, 2),
             ),
             TestCase(
                 description = "Directed unweighted line",
@@ -48,8 +52,9 @@ class DijkstraTest {
                         addEdge(v1.key, v2.key, "12")
                     },
                 startVertexKey = 0,
-                expectedDistances = mapOf(0 to 0.0, 1 to 1.0, 2 to 2.0),
-                expectedPath = 2 to listOf(0, 1, 2),
+                targetVertexKey = 2,
+                expectedDistance = 2.0,
+                expectedPath = listOf(0, 1, 2),
             ),
             TestCase(
                 description = "Directed weighted diamond",
@@ -65,8 +70,9 @@ class DijkstraTest {
                         addEdge(v2.key, v3.key, "23", 1.0)
                     },
                 startVertexKey = 0,
-                expectedDistances = mapOf(0 to 0.0, 1 to 1.0, 2 to 2.0, 3 to 3.0),
-                expectedPath = 3 to listOf(0, 2, 3),
+                targetVertexKey = 3,
+                expectedDistance = 3.0,
+                expectedPath = listOf(0, 2, 3),
             ),
             TestCase(
                 description = "Undirected graph with unreachable vertex",
@@ -74,35 +80,39 @@ class DijkstraTest {
                     DefaultGraph<Int, String>().apply {
                         val v0 = addVertex(0)
                         val v1 = addVertex(1)
-                        val v2 = addVertex(2)
+                        addVertex(2)
                         addEdge(v0.key, v1.key, "01")
                     },
                 startVertexKey = 0,
-                expectedDistances =
-                    mapOf(
-                        0 to 0.0,
-                        1 to 1.0,
-                        2 to Double.POSITIVE_INFINITY,
-                    ),
-                expectedPath = 2 to listOf(2),
+                targetVertexKey = 2,
+                expectedDistance = null,
+                expectedPath = null,
             ),
         )
 
     @ParameterizedTest(name = "{index} => {0}")
     @MethodSource("testCases")
-    fun `test Dijkstra shortest paths`(testCase: TestCase) {
-        val startVertex: Vertex<Int> =
-            testCase.graph[testCase.startVertexKey] ?: error("Start vertex not found")
-        val dijkstra = Dijkstra(testCase.graph)
-        val result = dijkstra.shortestPaths(startVertex)
+    fun `test Dijkstra shortest path`(testCase: TestCase) {
+        val startVertex: Vertex<Int>? = testCase.graph[testCase.startVertexKey]
+        val targetVertex: Vertex<Int>? = testCase.graph[testCase.targetVertexKey]
 
-        testCase.expectedDistances.forEach { (key, value) ->
-            assertEquals(value, result.distances[key], "Failed distances for ${testCase.description}")
+        if (startVertex == null || targetVertex == null) {
+            assertNull(testCase.expectedDistance, "Expected no path for ${testCase.description}")
+            assertNull(testCase.expectedPath, "Expected no path for ${testCase.description}")
+            return
         }
 
-        testCase.expectedPath?.let { (target, expectedPath) ->
-            val path = dijkstra.reconstructPath(result.previous, target)
-            assertEquals(expectedPath, path, "Failed path for ${testCase.description}")
+        val dijkstra = Dijkstra(testCase.graph)
+        val result = dijkstra.shortestPath(startVertex, targetVertex)
+
+        if (testCase.expectedDistance == null) {
+            assertNull(result, "Expected no path for ${testCase.description}")
+        } else {
+            assertNotNull(result, "Expected path for ${testCase.description}")
+            result?.let {
+                assertEquals(testCase.expectedDistance, it.distance, "Wrong distance for ${testCase.description}")
+                assertEquals(testCase.expectedPath, it.path, "Wrong path for ${testCase.description}")
+            }
         }
     }
 }
