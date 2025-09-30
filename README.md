@@ -1,4 +1,4 @@
-<p align="center"><img src="https://i.imgur.com/l6u8Em7.png" height="258" alt="Boyaan pic" /> </p>
+<p align="center"><img src="img/basher.png" height="258" alt="Boyaan pic" /> </p>
 <h1 align="center">Boyaan</h1>
 <p align="center">GUI software for graphs</p>
 
@@ -33,17 +33,17 @@ Download project from github and start command from project root
 
 ## 💡Features
 * <b>Tab system</b> - work with graphs in different tabs. Your state will be automatic safe.
-<p align="start"><img src="https://i.imgur.com/bZkaN5T.png" height="512" alt="tab system" /> </p>
+<p align="start"><img src="img/screenshots/tab_system.png" height="512" alt="tab system" /> </p>
 
 * <b>Window system</b> - all work with graph is in floating windows.
-<p align="start"><img src="https://i.imgur.com/ful13LP.png" height="512" alt="window system" /> </p>
+<p align="start"><img src="img/screenshots/floating_windows.png" height="512" alt="window system" /> </p>
 
 * <b>Theme switch</b> - you can easy switch theme on light and dark.
-<p align="start"><img src="https://i.imgur.com/3FkB2wb.png" height="512" alt="window system" /> </p>
+<p align="start"><img src="img/screenshots/switch_theme.png" height="512" alt="window system" /> </p>
 
 ## ⚙️ Save/Load
 You can save and load your graph with JSON files
-
+<p align="start"><img src="img/screenshots/save_file.png" height="512" alt="window system" /> </p>
 
 
 ## 👨‍💻 Authors
