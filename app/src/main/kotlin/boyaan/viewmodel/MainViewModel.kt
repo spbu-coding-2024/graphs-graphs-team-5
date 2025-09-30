@@ -28,7 +28,6 @@ class MainViewModel {
     var isDarkTheme by mutableStateOf(false)
     var tabs by mutableStateOf(listOf(TabState("Вкладка 1")))
     var selectedTab by mutableStateOf(0)
-    var showOpenDialog by mutableStateOf(false)
     var graphType by mutableStateOf(GraphType.DEFAULT)
 
     fun toggleTheme() {
