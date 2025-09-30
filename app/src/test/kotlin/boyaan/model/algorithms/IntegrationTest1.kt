@@ -50,7 +50,7 @@ class IntegrationTest1 {
             )
 
         val filePath = "compose_desktop_test_graph.json"
-
+        val file = File(filePath)
         saveTabToFile(tabState.toData(), filePath, tabState.title)
         assertTrue(File(filePath).exists(), "Save file must exist")
 
@@ -76,5 +76,6 @@ class IntegrationTest1 {
                 assertEquals(listOf(v1.key, v2.key, v3.key), result.path, "path from A to C must be correct")
             }
         }
+        file.delete()
     }
 }

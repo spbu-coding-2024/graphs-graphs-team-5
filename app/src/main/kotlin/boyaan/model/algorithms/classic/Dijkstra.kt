@@ -4,6 +4,7 @@ import boyaan.model.core.base.Graph
 import boyaan.model.core.base.Vertex
 import boyaan.model.core.internals.directed.DirectedGraph
 import boyaan.model.core.internals.weighted.Weighted
+import boyaan.model.core.internals.weighted.WeightedGraph
 import java.util.PriorityQueue
 
 public class Dijkstra<V, E>(
@@ -14,10 +15,23 @@ public class Dijkstra<V, E>(
         val path: List<Int>,
     )
 
+    private fun validateGraphNoNegativeWeights(): Boolean {
+        if (graph !is WeightedGraph) return true
+
+        for (edge in graph.edges) {
+            val weight = if (edge is Weighted) edge.weight else 1.0
+            if (weight < 0.0) {
+                return false
+            }
+        }
+        return true
+    }
+
     fun shortestPath(
         start: Vertex<V>,
         target: Vertex<V>,
     ): PathResult? {
+        if (!validateGraphNoNegativeWeights()) return null
         val distances = graph.vertices.associate { it.key to Double.POSITIVE_INFINITY }.toMutableMap()
         val previous = graph.vertices.associate { it.key to null as Int? }.toMutableMap()
 
