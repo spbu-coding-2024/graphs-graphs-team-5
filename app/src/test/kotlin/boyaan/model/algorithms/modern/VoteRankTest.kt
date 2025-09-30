@@ -16,7 +16,7 @@ class VoteRankTest {
         val graph: Graph<String, String>,
         val topK: Int,
         val expectedSize: Int,
-        val expectedCandidates: List<Set<String>> = emptyList(), // Список допустимых вариантов для каждой позиции
+        val expectedCandidates: List<Set<String>> = emptyList(),
     )
 
     fun testCases(): List<TestCase> =
@@ -58,7 +58,6 @@ class VoteRankTest {
                         setOf("L1", "L2", "L3"),
                     ),
             ),
-            // 4. Линейный граф
             TestCase(
                 description = "Line graph A-B-C-D",
                 graph =
@@ -80,7 +79,6 @@ class VoteRankTest {
                         setOf("A", "D"),
                     ),
             ),
-            // 5. Полный граф K4
             TestCase(
                 description = "Complete graph of 4 vertices",
                 graph =
