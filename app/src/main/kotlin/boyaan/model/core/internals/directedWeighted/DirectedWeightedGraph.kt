@@ -28,21 +28,30 @@ internal class DirectedWeightedGraph<V, E> :
         uKey: Int,
         vKey: Int,
         e: E,
-    ): DirectedWeightedEdge<E> = addEdge(uKey, vKey, e, weight = 1.0)
+    ): DirectedWeightedEdge<E>? = addEdge(uKey, vKey, e, weight = 1.0)
 
     override fun addEdge(
         uKey: Int,
         vKey: Int,
         e: E,
         weight: Double,
-    ): DirectedWeightedEdge<E> = _edges.getOrPut(uKey to vKey) { DirectedWeightedEdge(uKey to vKey, e, weight) }
+    ): DirectedWeightedEdge<E>? =
+        if (uKey == vKey) {
+            null
+        } else {
+            _vertices[uKey]?.let {
+                _vertices[vKey]?.let {
+                    _edges.getOrPut(uKey to vKey) { DirectedWeightedEdge(uKey to vKey, e, weight) }
+                }
+            }
+        }
 
     override operator fun get(key: Int): DefaultVertex<V>? = _vertices[key]
 
     override operator fun get(
         uKey: Int,
         vKey: Int,
-    ): DirectedWeightedEdge<E>? = _edges[uKey to vKey] ?: _edges[vKey to uKey]
+    ): DirectedWeightedEdge<E>? = _edges[uKey to vKey]
 
     override fun removeVertex(key: Int): DefaultVertex<V>? =
         _vertices.remove(key)?.also {

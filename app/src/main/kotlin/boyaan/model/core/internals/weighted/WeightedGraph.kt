@@ -8,5 +8,5 @@ internal interface WeightedGraph<V, E> : Graph<V, E> {
         vKey: Int,
         e: E,
         weight: Double,
-    ): Weighted
+    ): Weighted?
 }

@@ -6,11 +6,15 @@ public interface Graph<V, E> {
 
     fun addVertex(v: V): Vertex<V>
 
+    fun addVerticesAll(vararg vs: V) {
+        vs.forEach { addVertex(it) }
+    }
+
     fun addEdge(
         uKey: Int,
         vKey: Int,
         e: E,
-    ): Edge<E>
+    ): Edge<E>?
 
     operator fun get(key: Int): Vertex<V>?
 

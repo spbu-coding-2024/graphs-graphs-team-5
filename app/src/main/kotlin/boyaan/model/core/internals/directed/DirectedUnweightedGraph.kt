@@ -23,7 +23,16 @@ internal class DirectedUnweightedGraph<V, E> : DirectedGraph<V, E> {
         uKey: Int,
         vKey: Int,
         e: E,
-    ): DirectedEdge<E> = _edges.getOrPut(uKey to vKey) { DirectedEdge(uKey to vKey, e) }
+    ): DirectedEdge<E>? =
+        if (uKey == vKey) {
+            null
+        } else {
+            _vertices[uKey]?.let {
+                _vertices[vKey]?.let {
+                    _edges.getOrPut(uKey to vKey) { DirectedEdge(uKey to vKey, e) }
+                }
+            }
+        }
 
     override operator fun get(key: Int): DefaultVertex<V>? = _vertices[key]
 

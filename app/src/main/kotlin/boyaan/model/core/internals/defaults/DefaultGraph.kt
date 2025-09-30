@@ -23,12 +23,16 @@ internal class DefaultGraph<V, E> : Graph<V, E> {
         uKey: Int,
         vKey: Int,
         e: E,
-    ): DefaultEdge<E> =
-        _edges[uKey to vKey]
-            ?: _edges
-                .getOrPut(vKey to uKey) {
-                    DefaultEdge(uKey to vKey, e)
+    ): DefaultEdge<E>? =
+        if (uKey == vKey) {
+            null
+        } else {
+            _vertices[uKey]?.let {
+                _vertices[vKey]?.let {
+                    _edges[uKey to vKey] ?: _edges.getOrPut(vKey to uKey) { DefaultEdge(uKey to vKey, e) }
                 }
+            }
+        }
 
     override operator fun get(key: Int): DefaultVertex<V>? = _vertices[key]
 
