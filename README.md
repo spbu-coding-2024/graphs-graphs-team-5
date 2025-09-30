@@ -52,7 +52,7 @@ You can save and load your graph with
 
 * [Kharisov Bogdan](https://github.com/lospollosenjoyer)
 * [Oderiy Yaroslav](https://github.com/XRenso)
-* [Tarasov Andrei]((https://github.com/TheFollan))
+* [Tarasov Andrei](https://github.com/TheFollan)
 
 ## 🪪 License
 This project is licensed under the [<b>MIT</b>](LICENSE).
