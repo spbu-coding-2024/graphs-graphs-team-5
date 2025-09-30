@@ -73,7 +73,7 @@ class FordBellmanTest {
                         addEdge(v1.key, v0.key, "10", -2.0)
                     },
                 startKey = 0,
-                expectedDistances = emptyMap(), // не проверяем конкретные значения
+                expectedDistances = emptyMap(),
                 expectedNegativeCycle = true,
             ),
         )
