@@ -32,8 +32,6 @@ import boyaan.model.ScreenState
 import boyaan.model.TabState
 import boyaan.model.save.loadTabFromFile
 import boyaan.viewmodel.MainViewModel
-import java.awt.FileDialog
-import java.awt.Frame
 import kotlin.collections.toMutableList
 
 @Composable
@@ -163,7 +161,7 @@ fun mainScreen(
                             onCloseWindow = { windowId -> viewModel.closeFloatingWindow(windowId) },
                             onMoveWindow = { windowId, newOffset -> viewModel.moveFloatingWindow(windowId, newOffset) },
                             onActivateWindow = { windowId -> viewModel.activateWindow(windowId) },
-                            onVertexSelected = { v_key -> viewModel.selectVertex(v_key) },
+                            onVertexSelected = { vKey -> viewModel.selectVertex(vKey) },
                             currentTab = currentTab,
                         )
                     }
@@ -178,15 +176,20 @@ fun mainScreen(
                         Column {
                             Button(onClick = { viewModel.showOpenDialog = false }, modifier = Modifier.fillMaxWidth()) { Text("SQL") }
                             Button(onClick = {
-                                val dialog = FileDialog(Frame(), "Выберите JSON для загрузки", FileDialog.LOAD)
-                                dialog.isVisible = true
-                                dialog.filenameFilter =
-                                    java.io.FilenameFilter { _, name ->
-                                        name.lowercase().endsWith(".json")
+                                val dialog = javax.swing.JFileChooser()
+                                dialog.dialogTitle = "Загрузить JSON"
+                                dialog.fileSelectionMode = javax.swing.JFileChooser.FILES_ONLY
+                                dialog.fileFilter =
+                                    object : javax.swing.filechooser.FileFilter() {
+                                        override fun accept(f: java.io.File) = f.isDirectory || f.name.lowercase().endsWith(".json")
+
+                                        override fun getDescription() = "JSON файлы (*.json)"
                                     }
-                                if (dialog.directory != null && dialog.file != null) {
-                                    val filepath = "${dialog.directory}${dialog.file}"
-                                    val loadedTab = loadTabFromFile(filepath)
+
+                                val result = dialog.showOpenDialog(null)
+                                if (result == javax.swing.JFileChooser.APPROVE_OPTION) {
+                                    val file = dialog.selectedFile
+                                    val loadedTab = loadTabFromFile(file.absolutePath)
                                     if (loadedTab != null) {
                                         onTabLoaded(loadedTab)
                                     }

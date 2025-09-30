@@ -1,5 +1,4 @@
 package boyaan.view
-
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,8 +29,7 @@ import boyaan.model.core.internals.weighted.WeightedGraph
 import boyaan.model.save.TabStateD
 import boyaan.model.save.saveTabToFile
 import boyaan.model.save.toData
-import java.awt.FileDialog
-import java.awt.Frame
+import javax.swing.JFileChooser
 
 @Composable
 fun vertexEditorWindow(
@@ -85,7 +83,6 @@ fun edgeEditorWindow(
         Text("Добавить связь", style = MaterialTheme.typography.h6)
         Spacer(Modifier.height(12.dp))
 
-        // From Vertex
         var fromExpanded by remember { mutableStateOf(false) }
         ExposedDropdownMenuBox(expanded = fromExpanded, onExpandedChange = { fromExpanded = !fromExpanded }) {
             OutlinedTextField(
@@ -111,7 +108,6 @@ fun edgeEditorWindow(
 
         Spacer(Modifier.height(8.dp))
 
-        // To Vertex
         var toExpanded by remember { mutableStateOf(false) }
         ExposedDropdownMenuBox(expanded = toExpanded, onExpandedChange = { toExpanded = !toExpanded }) {
             OutlinedTextField(
@@ -200,7 +196,7 @@ fun algorithms(
     selectedVertexKey: Int?,
     onCyclesFound: (List<List<Int>>) -> Unit,
     onClearHighlight: () -> Unit,
-    onDijkstraResult: (Dijkstra.Result) -> Unit,
+    openWindow: (String, String) -> Unit,
 ) {
     Column(Modifier.padding(12.dp)) {
         Text("Применить алгоритмы на графе", style = MaterialTheme.typography.h6)
@@ -208,11 +204,9 @@ fun algorithms(
 
         Button(
             onClick = {
-                val vertexKey = selectedVertexKey
-                val g = graph
-                if (vertexKey != null && g != null) {
-                    g[vertexKey]?.let { vertex ->
-                        val finder = FindCycles(g)
+                if (selectedVertexKey != null && graph != null) {
+                    graph[selectedVertexKey]?.let { vertex ->
+                        val finder = FindCycles(graph)
                         val cycles = finder.findCycles(vertex)
                         onCyclesFound(cycles)
                     }
@@ -227,15 +221,7 @@ fun algorithms(
 
         Button(
             onClick = {
-                val vertexKey = selectedVertexKey
-                val g = graph
-                if (vertexKey != null && g != null) {
-                    g[vertexKey]?.let { vertex ->
-                        val dijkstra = Dijkstra(g)
-                        val result = dijkstra.shortestPaths(vertex)
-                        onDijkstraResult(result)
-                    }
-                }
+                openWindow("dijkstra", "Алгоритм Дейкстры")
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = selectedVertexKey != null && graph != null,
@@ -276,18 +262,22 @@ fun saveTabWindow(
 
         Button(
             onClick = {
-                val dialog = FileDialog(Frame(), "Выберите папку", FileDialog.SAVE)
-                dialog.isVisible = true
-                dialog.filenameFilter =
-                    java.io.FilenameFilter { _, name ->
-                        name.lowercase().endsWith(".json")
+                val dialog = JFileChooser()
+                dialog.dialogTitle = "Выберите JSON"
+                dialog.fileSelectionMode = JFileChooser.FILES_ONLY
+                dialog.fileFilter =
+                    object : javax.swing.filechooser.FileFilter() {
+                        override fun accept(f: java.io.File) = f.isDirectory || f.name.lowercase().endsWith(".json")
+
+                        override fun getDescription() = "JSON файлы (*.json)"
                     }
-                if (dialog.directory != null && dialog.file != null) {
-                    var filename = dialog.file
-                    if (!filename.endsWith(".json")) {
-                        filename += ".json"
+                val result = dialog.showSaveDialog(null)
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    var file = dialog.selectedFile
+                    if (!file.name.endsWith(".json")) {
+                        file = java.io.File(file.parentFile, file.name + ".json")
                     }
-                    savePath = "${dialog.directory}${dialog.file}"
+                    savePath = file.absolutePath
                 }
             },
             modifier = Modifier.fillMaxWidth(),
@@ -314,6 +304,100 @@ fun saveTabWindow(
 
         Button(onClick = onClose, modifier = Modifier.fillMaxWidth()) {
             Text("Отмена")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun dijkstraWindow(
+    currentTab: TabState,
+    onRun: (Dijkstra.PathResult?) -> Unit,
+    onClose: () -> Unit,
+) {
+    var startVertexKey by remember { mutableStateOf(currentTab.selectedVertex.value) }
+    var targetVertexKey by remember { mutableStateOf<Int?>(null) }
+
+    val startOptions =
+        currentTab.graph.vertices
+            .filter { it.key != targetVertexKey }
+            .map { it.key to it.value }
+    val targetOptions =
+        currentTab.graph.vertices
+            .filter { it.key != startVertexKey }
+            .map { it.key to it.value }
+
+    Column(Modifier.padding(12.dp)) {
+        Text("Алгоритм Дейкстры", style = MaterialTheme.typography.h6)
+        Spacer(Modifier.height(12.dp))
+
+        var startExpanded by remember { mutableStateOf(false) }
+        ExposedDropdownMenuBox(expanded = startExpanded, onExpandedChange = { startExpanded = !startExpanded }) {
+            OutlinedTextField(
+                value = startVertexKey?.let { key -> currentTab.graph[key]?.value } ?: "",
+                onValueChange = {},
+                label = { Text("Начальная вершина") },
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = startExpanded) },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            ExposedDropdownMenu(expanded = startExpanded, onDismissRequest = { startExpanded = false }) {
+                startOptions.forEach { (key, name) ->
+                    DropdownMenuItem(onClick = {
+                        startVertexKey = key
+                        if (targetVertexKey == key) targetVertexKey = null
+                        startExpanded = false
+                    }) {
+                        Text(name)
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        var targetExpanded by remember { mutableStateOf(false) }
+        ExposedDropdownMenuBox(expanded = targetExpanded, onExpandedChange = { targetExpanded = !targetExpanded }) {
+            OutlinedTextField(
+                value = targetVertexKey?.let { key -> currentTab.graph[key]?.value } ?: "",
+                onValueChange = {},
+                label = { Text("Конечная вершина") },
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = targetExpanded) },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            ExposedDropdownMenu(expanded = targetExpanded, onDismissRequest = { targetExpanded = false }) {
+                targetOptions.forEach { (key, name) ->
+                    DropdownMenuItem(onClick = {
+                        targetVertexKey = key
+                        targetExpanded = false
+                    }) {
+                        Text(name)
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        Button(
+            onClick = {
+                val startKey = startVertexKey
+                val targetKey = targetVertexKey
+                val startVertex = startKey?.let { currentTab.graph[it] }
+                val targetVertex = targetKey?.let { currentTab.graph[it] }
+
+                if (startVertex != null && targetVertex != null) {
+                    val dijkstra = Dijkstra(currentTab.graph)
+                    val result = dijkstra.shortestPath(startVertex, targetVertex)
+                    onRun(result)
+                    onClose()
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = startVertexKey != null && targetVertexKey != null,
+        ) {
+            Text("Выполнить")
         }
     }
 }
