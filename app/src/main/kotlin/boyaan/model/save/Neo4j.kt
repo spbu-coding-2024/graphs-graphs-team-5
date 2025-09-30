@@ -18,7 +18,7 @@ class Neo4j(
     fun <V, E> exportGraph(
         graph: Graph<V, E>,
         clearDatabase: Boolean = false,
-        batchSize: Int = 500
+        batchSize: Int = 500,
     ) {
         driver.session().use { session ->
             session.executeWrite { tx ->
@@ -34,30 +34,36 @@ class Neo4j(
             val vertexList = graph.vertices.toList()
             val originalKeyToIndex = vertexList.mapIndexed { index, vertex -> vertex.key to index }.toMap()
 
-            val nodesPayload = vertexList.mapIndexed { index, vertex ->
-                mapOf("index" to index, "value" to vertex.value.toString())
-            }
+            val nodesPayload =
+                vertexList.mapIndexed { index, vertex ->
+                    mapOf("index" to index, "value" to vertex.value.toString())
+                }
 
-            val edgesPayload = graph.edges.map { edge ->
-                val leftKey = edge.key.first
-                val rightKey = edge.key.second
-                val leftIndex = originalKeyToIndex[leftKey] ?: throw IllegalArgumentException("Vertex key missing")
-                val rightIndex = originalKeyToIndex[rightKey] ?: throw IllegalArgumentException("Vertex key missing")
-                val (minIndex, maxIndex) = if (leftIndex <= rightIndex) leftIndex to rightIndex
-                else rightIndex to leftIndex
+            val edgesPayload =
+                graph.edges.map { edge ->
+                    val leftKey = edge.key.first
+                    val rightKey = edge.key.second
+                    val leftIndex = originalKeyToIndex[leftKey] ?: throw IllegalArgumentException("Vertex key missing")
+                    val rightIndex = originalKeyToIndex[rightKey] ?: throw IllegalArgumentException("Vertex key missing")
+                    val (minIndex, maxIndex) =
+                        if (leftIndex <= rightIndex) {
+                            leftIndex to rightIndex
+                        } else {
+                            rightIndex to leftIndex
+                        }
 
-                mapOf("uIndex" to minIndex, "vIndex" to maxIndex, "value" to edge.value.toString())
-            }
+                    mapOf("uIndex" to minIndex, "vIndex" to maxIndex, "value" to edge.value.toString())
+                }
 
             nodesPayload.chunked(batchSize).forEach { batch ->
                 session.executeWrite { tx ->
                     tx.run(
                         """
-                            UNWIND $${"nodes"} AS nodeEntry
-                            MERGE (v:Vertex {origId: nodeEntry.index})
-                            SET v.value = nodeEntry.value
+                        UNWIND $${"nodes"} AS nodeEntry
+                        MERGE (v:Vertex {origId: nodeEntry.index})
+                        SET v.value = nodeEntry.value
                         """.trimIndent(),
-                        mapOf("nodes" to batch)
+                        mapOf("nodes" to batch),
                     )
                 }
             }
@@ -66,11 +72,11 @@ class Neo4j(
                 session.executeWrite { tx ->
                     tx.run(
                         """
-                            UNWIND $${"edges"} AS edgeEntry
-                            MATCH (a:Vertex {index: edgeEntry.uIndex}), (b:Vertex {index: edgeEntry.vIndex})
-                            MERGE (a)-[r:EDGE {value: edgeEntry.value}]->(b)
+                        UNWIND $${"edges"} AS edgeEntry
+                        MATCH (a:Vertex {index: edgeEntry.uIndex}), (b:Vertex {index: edgeEntry.vIndex})
+                        MERGE (a)-[r:EDGE {value: edgeEntry.value}]->(b)
                         """.trimIndent(),
-                        mapOf("edges" to batch)
+                        mapOf("edges" to batch),
                     )
                 }
             }
@@ -90,22 +96,24 @@ class Neo4j(
                 }
 
             val indexToVertex = mutableMapOf<Int, Vertex<V>>()
-            for((pos, record) in vertexRecords.withIndex()) {
-                val indexValue = if(!record["idx"].isNull) record["idx"].asInt() else pos
+            for ((pos, record) in vertexRecords.withIndex()) {
+                val indexValue = if (!record["idx"].isNull) record["idx"].asInt() else pos
                 val valueString = if (record["value"].isNull) "" else record["value"].asString()
                 val parsedValue = valueParser(valueString)
                 val createdVertex = resultGraph.addVertex(parsedValue)
                 indexToVertex[indexValue] = createdVertex
             }
 
-            val edgeRecords = session.executeRead { tx ->
-                tx.run(
-                    "MATCH (a:Vertex)-[r:EDGE]->(b:Vertex) RETURN a.index AS uIndex, b.index AS vIndex, r.value AS value"
-                ).list()
-            }
+            val edgeRecords =
+                session.executeRead { tx ->
+                    tx
+                        .run(
+                            "MATCH (a:Vertex)-[r:EDGE]->(b:Vertex) RETURN a.index AS uIndex, b.index AS vIndex, r.value AS value",
+                        ).list()
+                }
 
             for (record in edgeRecords) {
-                if(record["uIndex"].isNull || record["vIndex"].isNull) continue
+                if (record["uIndex"].isNull || record["vIndex"].isNull) continue
                 val uIndex = record["uIndex"].asInt()
                 val vIndex = record["vIndex"].asInt()
                 val edgeValueString = if (record["value"].isNull) "" else record["value"].asString()
