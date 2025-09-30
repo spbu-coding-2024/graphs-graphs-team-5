@@ -9,12 +9,12 @@ class VoteRank<V, E> {
         graph: Graph<V, E>,
         topK: Int = Int.MAX_VALUE,
     ): List<Vertex<V>> {
-        val res = mutableListOf<Vertex<V>>()
+        val result = mutableListOf<Vertex<V>>()
         val scores = graph.vertices.associateWith { degree(graph, it).toDouble() }.toMutableMap()
 
-        while (scores.values.any { it > 0.0 } && res.size < topK) {
+        while (scores.values.any { it > 0.0 } && result.size < topK) {
             val candidate = scores.filter { it.value > 0.0 }.maxByOrNull { it.value }?.key ?: break
-            res.add(candidate)
+            result.add(candidate)
             scores[candidate] = 0.0
 
             val degCandidate = degree(graph, candidate).toDouble().coerceAtLeast(1.0)
@@ -23,10 +23,10 @@ class VoteRank<V, E> {
             }
         }
 
-        if (res.isEmpty() && graph.vertices.isNotEmpty()) {
-            res.add(graph.vertices.first())
+        if (result.isEmpty() && graph.vertices.isNotEmpty()) {
+            result.add(graph.vertices.first())
         }
-        return res
+        return result
     }
 
     private fun degree(
