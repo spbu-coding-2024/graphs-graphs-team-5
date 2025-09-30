@@ -5,7 +5,10 @@ import boyaan.model.core.base.Vertex
 import kotlin.math.max
 
 class VoteRank<V, E> {
-    fun run(graph: Graph<V, E>, topK: Int = Int.MAX_VALUE): List<Vertex<V>> {
+    fun run(
+        graph: Graph<V, E>,
+        topK: Int = Int.MAX_VALUE,
+    ): List<Vertex<V>> {
         val res = mutableListOf<Vertex<V>>()
         val scores = graph.vertices.associateWith { degree(graph, it).toDouble() }.toMutableMap()
 
