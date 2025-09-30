@@ -18,6 +18,10 @@
 * <b>Community detection</b> - Louvain - click on vertex and choose in algorithms tab - Kharisov Bogdan
 * <b>Minimum spanning tree detection</b> - Kosaraju - click on vertex and choose in algorithms tab - Kharisov Bogdan
 * <b>Strongly connected communities detection</b> - Kruskal -  click on vertex and choose in algorithms tab - Kharisov Bogdan
+* <b>Bridges Find</b> - DFS - not in GUI - Tarasov Andrei
+* <b>Ford Bellman</b> - R. Bellman L. Ford - not in GUI - Tarasov Andrei
+
+
 
 ## 🛠️ Quick Start
 Download project from github and start command from project root
@@ -48,6 +52,7 @@ You can save and load your graph with
 
 * [Kharisov Bogdan](https://github.com/lospollosenjoyer)
 * [Oderiy Yaroslav](https://github.com/XRenso)
+* [Tarasov Andrei]((https://github.com/TheFollan))
 
 ## 🪪 License
 This project is licensed under the [<b>MIT</b>](LICENSE).
