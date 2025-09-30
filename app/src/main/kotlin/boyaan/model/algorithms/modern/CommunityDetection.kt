@@ -8,6 +8,7 @@ import org.jetbrains.research.ictl.louvain.Link
 import org.jetbrains.research.ictl.louvain.computeModularity
 
 internal typealias Partition = Map<Int, Int>
+internal typealias Communities = MutableMap<Int, MutableList<Int>>
 
 internal class CommunityDetection<V, E>(
     graph: Graph<V, E>,
@@ -37,6 +38,20 @@ internal class CommunityDetection<V, E>(
     fun getPartition(depth: Int = 0): Partition =
         org.jetbrains.research.ictl.louvain
             .getPartition(links, depth)
+
+    fun partitionToCommunities(partition: Partition): Communities {
+        val communities = mutableMapOf<Int, MutableList<Int>>()
+        partition.forEach { (key, community) ->
+            communities.getOrPut(community) { mutableListOf() }.add(key)
+        }
+        return communities
+    }
+
+    fun getCommunities(depth: Int = 0): Communities =
+        partitionToCommunities(
+            org.jetbrains.research.ictl.louvain
+                .getPartition(links, depth),
+        )
 
     fun computeModularity(partition: Partition): Double = computeModularity(links, partition)
 }
