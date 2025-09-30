@@ -1,6 +1,5 @@
 package boyaan.model.core.internals.weighted
 
-import boyaan.model.core.internals.defaults.DefaultEdge
 import boyaan.model.core.internals.defaults.DefaultVertex
 
 internal class UndirectedWeightedGraph<V, E> : WeightedGraph<V, E> {
