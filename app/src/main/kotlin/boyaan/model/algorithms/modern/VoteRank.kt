@@ -22,6 +22,10 @@ class VoteRank<V, E> {
                 scores[neighbor] = max(0.0, (scores[neighbor] ?: 0.0) - 1.0 / degCandidate)
             }
         }
+
+        if (res.isEmpty() && graph.vertices.isNotEmpty()) {
+            res.add(graph.vertices.first())
+        }
         return res
     }
 
