@@ -1,0 +1,12 @@
+[versions]
+guava = "33.3.1-jre"
+junit-jupiter = "5.11.3"
+ktlint = "0.50.0"
+
+[libraries]
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
+ktlint = { module = "com.pinterest:ktlint", version.ref = "ktlint" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version = "2.1.0" }
