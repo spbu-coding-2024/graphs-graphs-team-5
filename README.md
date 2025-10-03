@@ -15,9 +15,9 @@
 * <b>Layout algorithm</b> - Force Atlas 2 - by default in your graph tab - Oderiy Yaroslav
 * <b>Cycles find</b> - DFS - click on vertex and choose in algorithms tab - Oderiy Yaroslav
 * <b>Dijkstra algorithm</b> - Edsger Wybe Dijkstra - click on vertex and choose in algorithms tab - Oderiy Yaroslav
-* <b>Community detection</b> - Louvain - click on vertex and choose in algorithms tab - Kharisov Bogdan
-* <b>Minimum spanning tree detection</b> - Kosaraju - click on vertex and choose in algorithms tab - Kharisov Bogdan
-* <b>Strongly connected communities detection</b> - Kruskal -  click on vertex and choose in algorithms tab - Kharisov Bogdan
+* <b>Community detection</b> - Louvain - not in GUI - Kharisov Bogdan
+* <b>Minimum spanning tree detection</b> - Kosaraju - not in GUI - Kharisov Bogdan
+* <b>Strongly connected communities detection</b> - Kruskal -  not in GUI - Kharisov Bogdan
 * <b>Bridges Find</b> - DFS - not in GUI - Tarasov Andrei
 * <b>Ford Bellman</b> - R. Bellman L. Ford - not in GUI - Tarasov Andrei
 
