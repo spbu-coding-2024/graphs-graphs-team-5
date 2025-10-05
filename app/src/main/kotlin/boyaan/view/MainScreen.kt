@@ -174,13 +174,14 @@ fun mainScreen(
 
                         graphScreen(
                             graph = currentTab.graph,
+                            currentTab = currentTab,
                             floatingWindows = currentTab.floatingWindows,
                             activeWindowId = currentTab.activeWindowId,
                             onCloseWindow = { windowId -> viewModel.closeFloatingWindow(windowId) },
                             onMoveWindow = { windowId, newOffset -> viewModel.moveFloatingWindow(windowId, newOffset) },
                             onActivateWindow = { windowId -> viewModel.activateWindow(windowId) },
                             onVertexSelected = { vKey -> viewModel.selectVertex(vKey) },
-                            currentTab = currentTab,
+                            onEdgeSelected = { (uKey, vKey) -> viewModel.selectEdge(uKey, vKey) },
                         )
                     }
                 }

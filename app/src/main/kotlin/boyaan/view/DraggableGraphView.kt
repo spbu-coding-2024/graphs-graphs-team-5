@@ -43,6 +43,7 @@ fun draggableGraphView(
     modifier: Modifier = Modifier,
     currentTab: TabState,
     onVertexSelected: (Int) -> Unit,
+    onEdgeSelected: (Pair<Int, Int>) -> Unit,
 ) {
     fun Offset.normalize(): Offset {
         val len = sqrt(x * x + y * y)
@@ -168,6 +169,7 @@ fun draggableGraphView(
                         closestEdge?.let {
                             currentTab.selectedVertex.value = null
                             currentTab.selectedEdge.value = closestEdge
+                            onEdgeSelected(closestEdge)
                             down.consume()
                         }
                     }
@@ -236,8 +238,15 @@ fun draggableGraphView(
                         }
 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Canvas(modifier = Modifier.size(40.dp)) {
-                            drawCircle(color = circleColor, radius = size.minDimension / 2f)
+                        Box(contentAlignment = Alignment.Center) {
+                            Canvas(modifier = Modifier.size(40.dp)) {
+                                drawCircle(color = circleColor, radius = size.minDimension / 2f)
+                            }
+                            Text(
+                                text = vertex.key.toString(),
+                                color = MaterialTheme.colors.onPrimary,
+                                fontSize = 16.sp,
+                            )
                         }
                         Text(vertex.value, color = MaterialTheme.colors.onSurface, fontSize = 18.sp)
                     }
