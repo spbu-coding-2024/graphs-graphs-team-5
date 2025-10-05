@@ -1,4 +1,5 @@
 package boyaan.view
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,13 +24,18 @@ import androidx.compose.ui.unit.dp
 import boyaan.model.TabState
 import boyaan.model.algorithms.classic.Dijkstra
 import boyaan.model.algorithms.classic.FindCycles
+import boyaan.model.core.base.Edge
 import boyaan.model.core.base.Graph
 import boyaan.model.core.base.Vertex
+import boyaan.model.core.internals.directed.Directed
+import boyaan.model.core.internals.weighted.Weighted
 import boyaan.model.core.internals.weighted.WeightedGraph
 import boyaan.model.save.TabStateD
 import boyaan.model.save.saveTabToFile
 import boyaan.model.save.toData
 import javax.swing.JFileChooser
+import kotlin.math.max
+import kotlin.math.min
 
 @Composable
 fun vertexEditorWindow(
@@ -68,7 +74,7 @@ fun edgeEditorWindow(
     onClose: () -> Unit,
     currentTab: TabState,
 ) {
-    var fromVertexKey by remember { mutableStateOf<Int?>(currentTab.selectedVertex.value) }
+    var fromVertexKey by remember { mutableStateOf(currentTab.selectedVertex.value) }
     var toVertexKey by remember { mutableStateOf<Int?>(null) }
     var edgeData by remember { mutableStateOf("") }
     var weightText by remember { mutableStateOf("") }
@@ -176,17 +182,33 @@ fun edgeEditorWindow(
 }
 
 @Composable
-fun propertiesWindow(selectedVertex: Vertex<String>?) {
+fun propertiesWindow(
+    selectedVertex: Vertex<String>?,
+    selectedEdge: Edge<String>?,
+) {
     Column(Modifier.padding(12.dp)) {
-        Text("Свойства", style = MaterialTheme.typography.h6)
-        Spacer(Modifier.height(12.dp))
+        selectedVertex?.let {
+            Text("Узел", style = MaterialTheme.typography.h6)
+            Spacer(Modifier.height(12.dp))
 
-        if (selectedVertex != null) {
-            Text("• Узел: ${selectedVertex.value}")
-            Text("• ID: ${selectedVertex.key}")
-        } else {
-            Text("Выберите элемент для просмотра свойств")
-        }
+            Text("• Ключ: ${selectedVertex.key}")
+            Text("• Данные: ${selectedVertex.value}")
+        } ?: selectedEdge?.let {
+            Text("Ребро", style = MaterialTheme.typography.h6)
+            Spacer(Modifier.height(12.dp))
+
+            val (from, to) = selectedEdge.key
+            if (selectedEdge is Directed) {
+                Text("• Ключ начала: $from")
+                Text("• Ключ конца: $to")
+            } else {
+                Text("• Ключи вершин: ${min(from, to)}, ${max(from, to)}")
+            }
+            Text("• Данные: ${selectedEdge.value}")
+            if (selectedEdge is Weighted) {
+                Text("• Вес: ${selectedEdge.weight}")
+            }
+        } ?: Text("Выберите элемент для просмотра свойств")
     }
 }
 

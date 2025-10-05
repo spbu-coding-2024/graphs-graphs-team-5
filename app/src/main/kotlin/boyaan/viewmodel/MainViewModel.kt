@@ -10,6 +10,7 @@ import boyaan.model.ScreenState
 import boyaan.model.TabState
 import boyaan.model.core.base.Graph
 import boyaan.model.core.internals.defaults.DefaultGraph
+import boyaan.model.core.internals.directed.DirectedGraph
 import boyaan.model.core.internals.directed.DirectedUnweightedGraph
 import boyaan.model.core.internals.directedWeighted.DirectedWeightedGraph
 import boyaan.model.core.internals.weighted.UndirectedWeightedGraph
@@ -96,6 +97,7 @@ class MainViewModel {
                         )
                     }
                 }
+
                 "edge_editor" -> {
                     @androidx.compose.runtime.Composable {
                         edgeEditorWindow(
@@ -104,6 +106,7 @@ class MainViewModel {
                         )
                     }
                 }
+
                 "properties" -> {
                     @androidx.compose.runtime.Composable {
                         val currentTab = tabs[selectedTab]
@@ -111,9 +114,15 @@ class MainViewModel {
                             currentTab.selectedVertex.value?.let {
                                 currentTab.graph[it]
                             }
-                        propertiesWindow(selectedVertex)
+                        val selectedEdge =
+                            currentTab.selectedEdge.value?.let { (from, to) ->
+                                currentTab.graph[from, to]
+                                    ?: if (currentTab.graph !is DirectedGraph) currentTab.graph[to, from] else null
+                            }
+                        propertiesWindow(selectedVertex, selectedEdge)
                     }
                 }
+
                 "algorithms" -> {
                     @androidx.compose.runtime.Composable
                     {
@@ -133,7 +142,9 @@ class MainViewModel {
                             )
                         }
                     }
-                } "json" -> {
+                }
+
+                "json" -> {
                     @androidx.compose.runtime.Composable
                     {
                         saveTabWindow(
@@ -142,6 +153,7 @@ class MainViewModel {
                         )
                     }
                 }
+
                 "dijkstra" -> {
                     @androidx.compose.runtime.Composable
                     {
@@ -157,6 +169,7 @@ class MainViewModel {
                         )
                     }
                 }
+
                 else -> null
             }
 

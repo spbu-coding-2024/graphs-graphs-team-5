@@ -44,6 +44,24 @@ fun draggableGraphView(
     currentTab: TabState,
     onVertexSelected: (Int) -> Unit,
 ) {
+    fun Offset.normalize(): Offset {
+        val len = sqrt(x * x + y * y)
+        return if (len > 0f) Offset(x / len, y / len) else Offset.Zero
+    }
+
+    fun distanceToSegment(
+        p: Offset,
+        a: Offset,
+        b: Offset,
+    ): Float {
+        val ab = b - a
+        val ap = p - a
+        val abLen = ab.getDistance()
+        val t = ((ap.x * ab.x + ap.y * ab.y) / (abLen * abLen)).coerceIn(0f, 1f)
+        val closest = Offset(a.x + ab.x * t, a.y + ab.y * t)
+        return (p - closest).getDistance()
+    }
+
     val vertexPositions = currentTab.vertexPositions
     val fa2 = currentTab.fa2
     val density = LocalDensity.current
@@ -85,6 +103,7 @@ fun draggableGraphView(
     }
 
     val edgeColor = MaterialTheme.colors.onSurface.copy(alpha = 0.4f)
+    val selectedEdgeColor = MaterialTheme.colors.primary
 
     Box(modifier = modifier) {
         Canvas(modifier = Modifier.matchParentSize()) {
@@ -93,20 +112,67 @@ fun draggableGraphView(
                 val uPos = vertexPositions[u] ?: return@forEach
                 val vPos = vertexPositions[v] ?: return@forEach
 
-                drawLine(color = edgeColor, start = uPos, end = vPos, strokeWidth = 3f)
+                val isSelected = edge.key == currentTab.selectedEdge.value
+                val color = if (isSelected) selectedEdgeColor else edgeColor
+
                 if (graph is DirectedGraph) {
                     val dir = (vPos - uPos).normalize()
-                    val arrowSize = 35f
+                    val arrowSize = 30f
+                    val lineEnd = vPos - dir * arrowSize
+
+                    drawLine(color = color, start = uPos, end = lineEnd, strokeWidth = 3f)
+
                     val perp = Offset(-dir.y, dir.x)
                     val arrowTip = vPos
                     val arrowLeft = vPos - dir * arrowSize + perp * (arrowSize / 2)
                     val arrowRight = vPos - dir * arrowSize - perp * (arrowSize / 2)
 
-                    drawLine(edgeColor, arrowTip, arrowLeft, strokeWidth = 3f)
-                    drawLine(edgeColor, arrowTip, arrowRight, strokeWidth = 3f)
+                    drawPath(
+                        path =
+                            androidx.compose.ui.graphics.Path().apply {
+                                moveTo(arrowTip.x, arrowTip.y)
+                                lineTo(arrowLeft.x, arrowLeft.y)
+                                lineTo(arrowRight.x, arrowRight.y)
+                                close()
+                            },
+                        color = color,
+                    )
+                } else {
+                    drawLine(color = color, start = uPos, end = vPos, strokeWidth = 3f)
                 }
             }
         }
+
+        Box(
+            modifier =
+                Modifier.matchParentSize().pointerInput(Unit) {
+                    awaitEachGesture {
+                        val down = awaitFirstDown()
+                        val clickPos = down.position
+
+                        var closestEdge: Pair<Int, Int>? = null
+                        var minDist: Float = Float.MAX_VALUE
+
+                        graph.edges.forEach { edge ->
+                            val (u, v) = edge.key
+                            val uPos = vertexPositions[u] ?: return@forEach
+                            val vPos = vertexPositions[v] ?: return@forEach
+                            val dist = distanceToSegment(clickPos, uPos, vPos)
+
+                            if (dist < 15f && dist < minDist) {
+                                minDist = dist
+                                closestEdge = edge.key
+                            }
+                        }
+
+                        closestEdge?.let {
+                            currentTab.selectedVertex.value = null
+                            currentTab.selectedEdge.value = closestEdge
+                            down.consume()
+                        }
+                    }
+                },
+        )
 
         graph.edges.forEach { edge ->
             if (graph is WeightedGraph && edge is Weighted) {
@@ -135,6 +201,7 @@ fun draggableGraphView(
                                 awaitEachGesture {
                                     val down = awaitFirstDown()
                                     currentTab.selectedVertex.value = vertex.key
+                                    currentTab.selectedEdge.value = null
                                     onVertexSelected(vertex.key)
 
                                     val drag =
@@ -148,7 +215,8 @@ fun draggableGraphView(
                                         var dragChange: PointerEvent
                                         do {
                                             dragChange = awaitPointerEvent()
-                                            val change = dragChange.changes.firstOrNull { it.id == pointerId } ?: continue
+                                            val change =
+                                                dragChange.changes.firstOrNull { it.id == pointerId } ?: continue
                                             val oldPos = vertexPositions[vertex.key] ?: Offset.Zero
                                             val newPos = oldPos + change.positionChange()
                                             vertexPositions[vertex.key] = newPos
@@ -177,9 +245,4 @@ fun draggableGraphView(
             }
         }
     }
-}
-
-private fun Offset.normalize(): Offset {
-    val len = sqrt(x * x + y * y)
-    return if (len > 0f) Offset(x / len, y / len) else Offset.Zero
 }
