@@ -100,8 +100,8 @@ class MainViewModel {
                 "edge_editor" -> {
                     @androidx.compose.runtime.Composable {
                         edgeEditorWindow(
-                            graph = tabs[selectedTab].graph,
                             onClose = { closeFloatingWindow(windowId) },
+                            currentTab = tabs[selectedTab],
                         )
                     }
                 }

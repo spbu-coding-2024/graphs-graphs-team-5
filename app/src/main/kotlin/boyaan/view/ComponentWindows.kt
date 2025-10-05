@@ -65,17 +65,17 @@ fun vertexEditorWindow(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun edgeEditorWindow(
-    graph: Graph<String, String>,
     onClose: () -> Unit,
+    currentTab: TabState,
 ) {
-    var fromVertexKey by remember { mutableStateOf<Int?>(null) }
+    var fromVertexKey by remember { mutableStateOf<Int?>(currentTab.selectedVertex.value) }
     var toVertexKey by remember { mutableStateOf<Int?>(null) }
     var edgeData by remember { mutableStateOf("") }
     var weightText by remember { mutableStateOf("") }
 
-    val fromOptions = graph.vertices.map { it.key to it.value }
+    val fromOptions = currentTab.graph.vertices.map { it.key to it.value }
     val toOptions =
-        graph.vertices
+        currentTab.graph.vertices
             .filter { it.key != fromVertexKey }
             .map { it.key to it.value }
 
@@ -86,7 +86,7 @@ fun edgeEditorWindow(
         var fromExpanded by remember { mutableStateOf(false) }
         ExposedDropdownMenuBox(expanded = fromExpanded, onExpandedChange = { fromExpanded = !fromExpanded }) {
             OutlinedTextField(
-                value = fromVertexKey?.let { graph[it]?.value } ?: "",
+                value = fromVertexKey?.let { currentTab.graph[it]?.value } ?: "",
                 onValueChange = {},
                 label = { Text("Из узла") },
                 readOnly = true,
@@ -111,7 +111,7 @@ fun edgeEditorWindow(
         var toExpanded by remember { mutableStateOf(false) }
         ExposedDropdownMenuBox(expanded = toExpanded, onExpandedChange = { toExpanded = !toExpanded }) {
             OutlinedTextField(
-                value = toVertexKey?.let { graph[it]?.value } ?: "",
+                value = toVertexKey?.let { currentTab.graph[it]?.value } ?: "",
                 onValueChange = {},
                 label = { Text("В узел") },
                 readOnly = true,
@@ -140,7 +140,7 @@ fun edgeEditorWindow(
             modifier = Modifier.fillMaxWidth(),
         )
 
-        if (graph is WeightedGraph) {
+        if (currentTab.graph is WeightedGraph) {
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = weightText,
@@ -159,10 +159,10 @@ fun edgeEditorWindow(
                 val to = toVertexKey
                 val weight = weightText.toDoubleOrNull()
                 if (from != null && to != null) {
-                    if (graph is WeightedGraph) {
-                        graph.addEdge(from, to, edgeData, weight ?: 1.0)
+                    if (currentTab.graph is WeightedGraph) {
+                        currentTab.graph.addEdge(from, to, edgeData, weight ?: 1.0)
                     } else {
-                        graph.addEdge(from, to, edgeData)
+                        currentTab.graph.addEdge(from, to, edgeData)
                     }
                     onClose()
                 }
