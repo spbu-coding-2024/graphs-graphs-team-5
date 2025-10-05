@@ -13,6 +13,7 @@ data class TabState(
     var title: String,
     var screen: ScreenState = ScreenState.Home,
     var selectedVertex: MutableState<Int?> = mutableStateOf(null),
+    var selectedEdge: MutableState<Pair<Int, Int>?> = mutableStateOf(null),
     var draggedVertex: Int? = null,
     var floatingWindows: List<FloatingWindow> = emptyList(),
     var activeWindowId: String? = null,
