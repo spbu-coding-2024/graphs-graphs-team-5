@@ -42,7 +42,7 @@ tasks.named<Test>("test") {
 
 compose.desktop {
     application {
-        mainClass = "AppKt"
+        mainClass = "boyaan.AppKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "graphs-graphs-team-5"
