@@ -80,20 +80,20 @@ fun mainScreen(
                             Row {
                                 Button(
                                     onClick = {
-                                        viewModel.openFloatingWindow("node_editor", "Редактор узлов")
+                                        viewModel.openFloatingWindow("node_editor", "Редактор вершин")
                                     },
                                     modifier = Modifier.padding(end = 8.dp),
                                 ) {
-                                    Text("Добавить узел")
+                                    Text("Добавить вершину")
                                 }
 
                                 Button(
                                     onClick = {
-                                        viewModel.openFloatingWindow("edge_editor", "Редактор связей")
+                                        viewModel.openFloatingWindow("edge_editor", "Редактор ребер")
                                     },
                                     modifier = Modifier.padding(end = 8.dp),
                                 ) {
-                                    Text("Добавить связь")
+                                    Text("Добавить ребро")
                                 }
 
                                 Button(
@@ -174,13 +174,14 @@ fun mainScreen(
 
                         graphScreen(
                             graph = currentTab.graph,
+                            currentTab = currentTab,
                             floatingWindows = currentTab.floatingWindows,
                             activeWindowId = currentTab.activeWindowId,
                             onCloseWindow = { windowId -> viewModel.closeFloatingWindow(windowId) },
                             onMoveWindow = { windowId, newOffset -> viewModel.moveFloatingWindow(windowId, newOffset) },
                             onActivateWindow = { windowId -> viewModel.activateWindow(windowId) },
                             onVertexSelected = { vKey -> viewModel.selectVertex(vKey) },
-                            currentTab = currentTab,
+                            onEdgeSelected = { (uKey, vKey) -> viewModel.selectEdge(uKey, vKey) },
                         )
                     }
                 }

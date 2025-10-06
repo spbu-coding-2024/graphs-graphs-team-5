@@ -70,6 +70,13 @@ class MainViewModel {
         tabs[selectedTab].selectedVertex.value = vKey
     }
 
+    fun selectEdge(
+        uKey: Int,
+        vKey: Int,
+    ) {
+        tabs[selectedTab].selectedEdge.value = uKey to vKey
+    }
+
     fun addVertexToCurrentTab(name: String) {
         val tab = tabs[selectedTab]
         val vKey = tab.graph.addVertex(name).key

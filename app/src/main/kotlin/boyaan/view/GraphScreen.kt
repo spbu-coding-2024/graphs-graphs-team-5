@@ -19,11 +19,18 @@ fun graphScreen(
     onMoveWindow: (String, Offset) -> Unit,
     onActivateWindow: (String) -> Unit,
     onVertexSelected: (Int) -> Unit,
+    onEdgeSelected: (Pair<Int, Int>) -> Unit,
 ) {
     Box(Modifier.fillMaxSize()) {
-        draggableGraphView(graph = graph, modifier = Modifier.fillMaxSize(), onVertexSelected = {
-            onVertexSelected(it)
-        }, currentTab = currentTab)
+        draggableGraphView(
+            graph = graph,
+            modifier = Modifier.fillMaxSize(),
+            onVertexSelected = {
+                onVertexSelected(it)
+            },
+            onEdgeSelected = { onEdgeSelected(it) },
+            currentTab = currentTab,
+        )
 
         floatingWindows.forEach { window ->
             floatingWindowComponent(
