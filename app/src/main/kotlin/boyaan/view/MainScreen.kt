@@ -80,20 +80,20 @@ fun mainScreen(
                             Row {
                                 Button(
                                     onClick = {
-                                        viewModel.openFloatingWindow("node_editor", "Редактор узлов")
+                                        viewModel.openFloatingWindow("node_editor", "Редактор вершин")
                                     },
                                     modifier = Modifier.padding(end = 8.dp),
                                 ) {
-                                    Text("Добавить узел")
+                                    Text("Добавить вершину")
                                 }
 
                                 Button(
                                     onClick = {
-                                        viewModel.openFloatingWindow("edge_editor", "Редактор связей")
+                                        viewModel.openFloatingWindow("edge_editor", "Редактор ребер")
                                     },
                                     modifier = Modifier.padding(end = 8.dp),
                                 ) {
-                                    Text("Добавить связь")
+                                    Text("Добавить ребро")
                                 }
 
                                 Button(

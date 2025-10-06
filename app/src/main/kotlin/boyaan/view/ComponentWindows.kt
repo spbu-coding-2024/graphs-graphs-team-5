@@ -45,12 +45,12 @@ fun vertexEditorWindow(
     var nodeName by remember { mutableStateOf("") }
 
     Column(Modifier.padding(12.dp)) {
-        Text("Добавить узел", style = MaterialTheme.typography.h6)
+        Text("Добавить вершину", style = MaterialTheme.typography.h6)
         Spacer(Modifier.height(12.dp))
         OutlinedTextField(
             value = nodeName,
             onValueChange = { nodeName = it },
-            label = { Text("Имя узла") },
+            label = { Text("Имя вершины") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
@@ -63,7 +63,7 @@ fun vertexEditorWindow(
             modifier = Modifier.fillMaxWidth(),
             enabled = nodeName.isNotBlank(),
         ) {
-            Text("Сохранить узел")
+            Text("Сохранить вершину")
         }
     }
 }
@@ -86,7 +86,7 @@ fun edgeEditorWindow(
             .map { it.key to it.value }
 
     Column(Modifier.padding(12.dp)) {
-        Text("Добавить связь", style = MaterialTheme.typography.h6)
+        Text("Добавить ребро", style = MaterialTheme.typography.h6)
         Spacer(Modifier.height(12.dp))
 
         var fromExpanded by remember { mutableStateOf(false) }
@@ -94,7 +94,7 @@ fun edgeEditorWindow(
             OutlinedTextField(
                 value = fromVertexKey?.let { currentTab.graph[it]?.value } ?: "",
                 onValueChange = {},
-                label = { Text("Из узла") },
+                label = { Text("Из вершины") },
                 readOnly = true,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = fromExpanded) },
                 modifier = Modifier.fillMaxWidth(),
@@ -119,7 +119,7 @@ fun edgeEditorWindow(
             OutlinedTextField(
                 value = toVertexKey?.let { currentTab.graph[it]?.value } ?: "",
                 onValueChange = {},
-                label = { Text("В узел") },
+                label = { Text("В вершину") },
                 readOnly = true,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = toExpanded) },
                 modifier = Modifier.fillMaxWidth(),
@@ -176,7 +176,7 @@ fun edgeEditorWindow(
             modifier = Modifier.fillMaxWidth(),
             enabled = fromVertexKey != null && toVertexKey != null && edgeData.isNotBlank(),
         ) {
-            Text("Создать связь")
+            Text("Создать ребро")
         }
     }
 }
