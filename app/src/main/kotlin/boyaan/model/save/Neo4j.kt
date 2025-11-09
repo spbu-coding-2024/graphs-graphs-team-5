@@ -3,13 +3,13 @@ package boyaan.model.save
 import boyaan.model.core.base.Graph
 import boyaan.model.core.base.Vertex
 import boyaan.model.core.internals.defaults.DefaultGraph
+import boyaan.model.core.internals.directed.DirectedUnweightedGraph
+import boyaan.model.core.internals.directedWeighted.DirectedWeightedGraph
+import boyaan.model.core.internals.weighted.UndirectedWeightedGraph
 import org.neo4j.driver.AuthTokens
 import org.neo4j.driver.Driver
 import org.neo4j.driver.GraphDatabase
 import java.io.Closeable
-import boyaan.model.core.internals.directedWeighted.DirectedWeightedGraph
-import boyaan.model.core.internals.weighted.UndirectedWeightedGraph
-import boyaan.model.core.internals.directed.DirectedUnweightedGraph
 
 enum class GraphT { DEFAULT, DIRECTED, WEIGHTED, DIRECTED_WEIGHTED }
 
@@ -18,7 +18,6 @@ class Neo4j(
     user: String,
     password: String,
 ) : Closeable {
-
     private val driver: Driver = GraphDatabase.driver(uri, AuthTokens.basic(user, password))
 
     fun <V, E> exportGraph(
@@ -33,19 +32,20 @@ class Neo4j(
                     tx.run("MATCH (n) DETACH DELETE n")
                 }
             }
-            val graphType = when (graph) {
-                is DirectedWeightedGraph -> GraphT.DIRECTED_WEIGHTED.name
-                is DirectedUnweightedGraph -> GraphT.DIRECTED.name
-                is UndirectedWeightedGraph -> GraphT.WEIGHTED.name
-                else -> GraphT.DEFAULT.name
-            }
+            val graphType =
+                when (graph) {
+                    is DirectedWeightedGraph -> GraphT.DIRECTED_WEIGHTED.name
+                    is DirectedUnweightedGraph -> GraphT.DIRECTED.name
+                    is UndirectedWeightedGraph -> GraphT.WEIGHTED.name
+                    else -> GraphT.DEFAULT.name
+                }
             session.executeWrite { tx ->
                 tx.run(
                     """
-                        MERGE (g:GraphInfo)
-                        SET g.type = \${'$'}type
-                        """.trimIndent(),
-                    mapOf("type" to graphType)
+                    MERGE (g:GraphInfo)
+                    SET g.type = \${'$'}type
+                    """.trimIndent(),
+                    mapOf("type" to graphType),
                 )
             }
 
@@ -105,23 +105,24 @@ class Neo4j(
         valueParser: (String) -> V,
         edgeParser: (String) -> E,
     ): Graph<V, E> {
-
         driver.session().use { session ->
-            val graphType = session.executeRead { tx ->
-                val result = tx.run("MATCH (g:GraphInfo) RETURN g.type AS type").list()
-                if (result.isNotEmpty() && !result[0]["type"].isNull) {
-                    result[0]["type"].asString()
-                } else {
-                    GraphT.DEFAULT.name
+            val graphType =
+                session.executeRead { tx ->
+                    val result = tx.run("MATCH (g:GraphInfo) RETURN g.type AS type").list()
+                    if (result.isNotEmpty() && !result[0]["type"].isNull) {
+                        result[0]["type"].asString()
+                    } else {
+                        GraphT.DEFAULT.name
+                    }
                 }
-            }
 
-            val resultGraph: Graph<V, E> = when (GraphT.valueOf(graphType)) {
-                GraphT.DEFAULT -> DefaultGraph()
-                GraphT.DIRECTED -> DirectedUnweightedGraph()
-                GraphT.WEIGHTED -> UndirectedWeightedGraph()
-                GraphT.DIRECTED_WEIGHTED -> DirectedWeightedGraph()
-            }
+            val resultGraph: Graph<V, E> =
+                when (GraphT.valueOf(graphType)) {
+                    GraphT.DEFAULT -> DefaultGraph()
+                    GraphT.DIRECTED -> DirectedUnweightedGraph()
+                    GraphT.WEIGHTED -> UndirectedWeightedGraph()
+                    GraphT.DIRECTED_WEIGHTED -> DirectedWeightedGraph()
+                }
             val vertexRecords =
                 session.executeRead { tx ->
                     tx.run("MATCH (v:Vertex) RETURN v.origId AS idx, v.value AS value ORDER BY v.origId ASC").list()
