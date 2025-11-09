@@ -9,14 +9,21 @@ import androidx.compose.ui.unit.IntSize
 import boyaan.model.FloatingWindow
 import boyaan.model.ScreenState
 import boyaan.model.TabState
-import boyaan.model.algorithms.modern.VoteRank
 import boyaan.model.core.base.Graph
 import boyaan.model.core.internals.defaults.DefaultGraph
 import boyaan.model.core.internals.directed.DirectedGraph
 import boyaan.model.core.internals.directed.DirectedUnweightedGraph
 import boyaan.model.core.internals.directedWeighted.DirectedWeightedGraph
 import boyaan.model.core.internals.weighted.UndirectedWeightedGraph
-import boyaan.view.*
+import boyaan.view.algorithms
+import boyaan.view.bridgesFindWindow
+import boyaan.view.dijkstraWindow
+import boyaan.view.edgeEditorWindow
+import boyaan.view.fordBellmanWindow
+import boyaan.view.propertiesWindow
+import boyaan.view.saveTabWindow
+import boyaan.view.vertexEditorWindow
+import boyaan.view.voteRankWindow
 import java.util.UUID
 import kotlin.let
 
@@ -194,10 +201,13 @@ class MainViewModel {
                         bridgesFindWindow(
                             currentTab = tabs[selectedTab],
                             onClose = { closeFloatingWindow(windowId) },
-                            onRun = { result ->
+                            onRun = { bridges ->
                                 tabs[selectedTab].highlightedVertex.clear()
-                                result?.forEach { vKey -> tabs[selectedTab].highlightedVertex[vKey] = true }
-                            }
+                                bridges?.forEach { (uKey, vKey) ->
+                                    tabs[selectedTab].highlightedVertex[uKey] = true
+                                    tabs[selectedTab].highlightedVertex[vKey] = true
+                                }
+                            },
                         )
                     }
                 }
@@ -210,7 +220,7 @@ class MainViewModel {
                             onRun = { result ->
                                 tabs[selectedTab].highlightedVertex.clear()
                                 result?.forEach { key -> tabs[selectedTab].highlightedVertex[key] = true }
-                            }
+                            },
                         )
                     }
                 }

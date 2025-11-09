@@ -250,14 +250,6 @@ fun algorithms(
         ) {
             Text("Алгоритм Дейкстры")
         }
-        Spacer(Modifier.height(8.dp))
-
-        Button(
-            onClick = onClearHighlight,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text("Очистить подсветку")
-        }
 
         Spacer(Modifier.height(8.dp))
 
@@ -281,6 +273,15 @@ fun algorithms(
             enabled = graph != null,
         ) {
             Text("Поиск мостов")
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        Button(
+            onClick = onClearHighlight,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("Очистить подсветку")
         }
     }
 }

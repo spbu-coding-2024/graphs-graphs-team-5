@@ -22,7 +22,7 @@ import boyaan.model.algorithms.classic.BridgesFind
 fun bridgesFindWindow(
     currentTab: TabState,
     onClose: () -> Unit,
-    onRun: (highlightedVertexKeys: List<Int>?) -> Unit,
+    onRun: (bridges: List<Pair<Int, Int>>) -> Unit,
 ) {
     Column(
         modifier =
@@ -43,9 +43,8 @@ fun bridgesFindWindow(
         ) {
             Button(onClick = {
                 val algorithm = BridgesFind<String, String>()
-                val bridges = algorithm.bridgesFind(currentTab.graph)
-                val highlightedKeys = bridges.flatMap { listOf(it.key.first, it.key.second) }.distinct()
-                onRun(highlightedKeys)
+                val bridges = algorithm.bridgesFind(currentTab.graph).map { it.key.first to it.key.second }
+                onRun(bridges)
                 onClose()
             }) {
                 Text("Найти мосты")

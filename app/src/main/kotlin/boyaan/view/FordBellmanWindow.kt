@@ -54,7 +54,10 @@ fun fordBellmanWindow(
         var expanded by remember { mutableStateOf(false) }
         Box {
             OutlinedTextField(
-                value = startVertexKey?.let { key -> currentTab.graph[key]?.value ?: "Вершина $key" } ?: "",
+                value =
+                    startVertexKey?.let { key ->
+                        currentTab.graph[key]?.value?.toString() ?: "Вершина $key"
+                    } ?: "",
                 onValueChange = {},
                 modifier =
                     Modifier
@@ -71,7 +74,7 @@ fun fordBellmanWindow(
                             expanded = false
                         },
                     ) {
-                        Text(currentTab.graph[key]?.value ?: "Вершина $key")
+                        Text(currentTab.graph[key]?.value?.toString() ?: "Вершина $key")
                     }
                 }
             }
