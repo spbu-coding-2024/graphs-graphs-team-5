@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.IntSize
 import boyaan.model.FloatingWindow
 import boyaan.model.ScreenState
 import boyaan.model.TabState
+import boyaan.model.algorithms.modern.VoteRank
 import boyaan.model.core.base.Graph
 import boyaan.model.core.internals.defaults.DefaultGraph
 import boyaan.model.core.internals.directed.DirectedGraph
@@ -196,6 +197,19 @@ class MainViewModel {
                             onRun = { result ->
                                 tabs[selectedTab].highlightedVertex.clear()
                                 result?.forEach { vKey -> tabs[selectedTab].highlightedVertex[vKey] = true }
+                            }
+                        )
+                    }
+                }
+
+                "voteRank" -> {
+                    @androidx.compose.runtime.Composable {
+                        VoteRankWindow(
+                            currentTab = tabs[selectedTab],
+                            onClose = { closeFloatingWindow(windowId) },
+                            onRun = { result ->
+                                tabs[selectedTab].highlightedVertex.clear()
+                                result?.forEach { key -> tabs[selectedTab].highlightedVertex[key] = true }
                             }
                         )
                     }
