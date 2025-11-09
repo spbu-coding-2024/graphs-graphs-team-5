@@ -267,7 +267,7 @@ fun algorithms(
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = selectedVertexKey != null && graph != null,
-        ){
+        ) {
             Text("Алгоритм Форда-Беллама")
         }
 
@@ -279,7 +279,7 @@ fun algorithms(
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = graph != null,
-        ){
+        ) {
             Text("Поиск мостов")
         }
     }

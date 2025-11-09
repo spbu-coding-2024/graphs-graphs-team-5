@@ -204,7 +204,7 @@ class MainViewModel {
 
                 "voteRank" -> {
                     @androidx.compose.runtime.Composable {
-                        VoteRankWindow(
+                        voteRankWindow(
                             currentTab = tabs[selectedTab],
                             onClose = { closeFloatingWindow(windowId) },
                             onRun = { result ->

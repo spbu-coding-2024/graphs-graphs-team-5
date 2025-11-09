@@ -1,7 +1,15 @@
 package boyaan.view
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.Button
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
@@ -26,30 +34,32 @@ fun fordBellmanWindow(
     currentTab: TabState,
     onClose: () -> Unit,
     onRun: (result: List<Int>?) -> Unit,
-){
+) {
     var startVertexKey by remember { mutableStateOf<Int?>(null) }
     val vertices = currentTab.graph.vertices.map { it.key }
 
-    Column (
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+    Column(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
     ) {
         Text(
             text = "Алгоритм Форда-Беллмана",
-            style = MaterialTheme.typography.h6
+            style = MaterialTheme.typography.h6,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         var expanded by remember { mutableStateOf(false) }
-        Box{
+        Box {
             OutlinedTextField(
                 value = startVertexKey?.let { key -> currentTab.graph[key]?.value ?: "Вершина $key" } ?: "",
                 onValueChange = {},
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { expanded = true },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable { expanded = true },
                 label = { Text("Начальная вершина") },
                 readOnly = true,
             )
@@ -72,18 +82,19 @@ fun fordBellmanWindow(
         Row(
             horizontalArrangement = Arrangement.End,
             modifier = Modifier.fillMaxWidth(),
-        ){
+        ) {
             Button(
                 onClick = {
-                    if (startVertexKey != null){
+                    if (startVertexKey != null) {
                         val algorithm = FordBellman<String, String>()
                         val startVertex: Vertex<String> = currentTab.graph[startVertexKey!!]!!
-                        val result : FordBellmanResult<String> = algorithm.run(currentTab.graph, startVertex)
-                        val pathKeys : List<Int>? = if (result.negativeCycle) {
-                            null
-                        } else {
-                            result.distances.keys.map { it.key }
-                        }
+                        val result: FordBellmanResult<String> = algorithm.run(currentTab.graph, startVertex)
+                        val pathKeys: List<Int>? =
+                            if (result.negativeCycle) {
+                                null
+                            } else {
+                                result.distances.keys.map { it.key }
+                            }
 
                         onRun(pathKeys)
                     } else {
@@ -91,35 +102,16 @@ fun fordBellmanWindow(
                     }
                     onClose()
                 },
-                enabled = vertices.isNotEmpty()
+                enabled = vertices.isNotEmpty(),
             ) {
                 Text("Выполнить")
             }
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            OutlinedButton(onClick = onClose){
+            OutlinedButton(onClick = onClose) {
                 Text("Отмена")
             }
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
