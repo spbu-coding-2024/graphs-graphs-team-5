@@ -1,5 +1,6 @@
 package boyaan.viewmodel
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -14,12 +15,7 @@ import boyaan.model.core.internals.directed.DirectedGraph
 import boyaan.model.core.internals.directed.DirectedUnweightedGraph
 import boyaan.model.core.internals.directedWeighted.DirectedWeightedGraph
 import boyaan.model.core.internals.weighted.UndirectedWeightedGraph
-import boyaan.view.algorithms
-import boyaan.view.dijkstraWindow
-import boyaan.view.edgeEditorWindow
-import boyaan.view.propertiesWindow
-import boyaan.view.saveTabWindow
-import boyaan.view.vertexEditorWindow
+import boyaan.view.*
 import java.util.UUID
 import kotlin.let
 
@@ -170,6 +166,20 @@ class MainViewModel {
                             onRun = { result ->
                                 tabs[selectedTab].highlightedVertex.clear()
                                 result?.path?.forEach { vKey ->
+                                    tabs[selectedTab].highlightedVertex[vKey] = true
+                                }
+                            },
+                        )
+                    }
+                }
+                "fordBellman" -> {
+                    @Composable {
+                        fordBellmanWindow(
+                            currentTab = tabs[selectedTab],
+                            onClose = { closeFloatingWindow(windowId) },
+                            onRun = { result ->
+                                tabs[selectedTab].highlightedVertex.clear()
+                                result?.forEach { vKey ->
                                     tabs[selectedTab].highlightedVertex[vKey] = true
                                 }
                             },
