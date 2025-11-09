@@ -258,6 +258,30 @@ fun algorithms(
         ) {
             Text("Очистить подсветку")
         }
+
+        Spacer(Modifier.height(8.dp))
+
+        Button(
+            onClick = {
+                openWindow("ford_bellman", "Аглоритм Форда-Беллмана")
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = selectedVertexKey != null && graph != null,
+        ){
+            Text("Алгоритм Форда-Беллама")
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        Button(
+            onClick = {
+                openWindow("bridges", "Поиск мостов")
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = graph != null,
+        ){
+            Text("Поиск мостов")
+        }
     }
 }
 
