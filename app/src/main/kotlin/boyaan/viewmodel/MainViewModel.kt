@@ -172,8 +172,9 @@ class MainViewModel {
                         )
                     }
                 }
+
                 "fordBellman" -> {
-                    @Composable {
+                    @androidx.compose.runtime.Composable {
                         fordBellmanWindow(
                             currentTab = tabs[selectedTab],
                             onClose = { closeFloatingWindow(windowId) },
@@ -183,6 +184,19 @@ class MainViewModel {
                                     tabs[selectedTab].highlightedVertex[vKey] = true
                                 }
                             },
+                        )
+                    }
+                }
+
+                "bridgesFind" -> {
+                    @androidx.compose.runtime.Composable {
+                        bridgesFindWindow(
+                            currentTab = tabs[selectedTab],
+                            onClose = { closeFloatingWindow(windowId) },
+                            onRun = { result ->
+                                tabs[selectedTab].highlightedVertex.clear()
+                                result?.forEach { vKey -> tabs[selectedTab].highlightedVertex[vKey] = true }
+                            }
                         )
                     }
                 }
