@@ -1,8 +1,6 @@
 package boyaan.view
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +11,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.Button
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ExposedDropdownMenuBox
+import androidx.compose.material.ExposedDropdownMenuDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.OutlinedTextField
@@ -29,6 +30,7 @@ import boyaan.model.algorithms.classic.FordBellman
 import boyaan.model.algorithms.classic.FordBellmanResult
 import boyaan.model.core.base.Vertex
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun fordBellmanWindow(
     currentTab: TabState,
@@ -45,28 +47,30 @@ fun fordBellmanWindow(
                 .padding(16.dp),
     ) {
         Text(
-            text = "Алгоритм Форда-Беллмана",
+            text = "Алгоритм Форда–Беллмана",
             style = MaterialTheme.typography.h6,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         var expanded by remember { mutableStateOf(false) }
-        Box {
+        ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
             OutlinedTextField(
-                value =
-                    startVertexKey?.let { key ->
-                        currentTab.graph[key]?.value?.toString() ?: "Вершина $key"
-                    } ?: "",
+                value = startVertexKey?.let { key -> currentTab.graph[key]?.value } ?: "",
                 onValueChange = {},
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .clickable { expanded = true },
                 label = { Text("Начальная вершина") },
                 readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier.fillMaxWidth(),
             )
-            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier =
+                    Modifier
+                        .fillMaxWidth(),
+            ) {
                 vertices.forEach { key ->
                     DropdownMenuItem(
                         onClick = {
