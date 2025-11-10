@@ -182,7 +182,8 @@ class MainViewModel {
                 }
 
                 "fordBellman" -> {
-                    @androidx.compose.runtime.Composable {
+                    @androidx.compose.runtime.Composable
+                    {
                         fordBellmanWindow(
                             currentTab = tabs[selectedTab],
                             onClose = { closeFloatingWindow(windowId) },
@@ -197,7 +198,8 @@ class MainViewModel {
                 }
 
                 "bridgesFind" -> {
-                    @androidx.compose.runtime.Composable {
+                    @androidx.compose.runtime.Composable
+                    {
                         bridgesFindWindow(
                             currentTab = tabs[selectedTab],
                             onClose = { closeFloatingWindow(windowId) },

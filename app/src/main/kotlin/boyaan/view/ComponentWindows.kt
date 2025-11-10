@@ -255,7 +255,7 @@ fun algorithms(
 
         Button(
             onClick = {
-                openWindow("ford_bellman", "Аглоритм Форда-Беллмана")
+                openWindow("fordBellman", "Аглоритм Форда-Беллмана")
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = selectedVertexKey != null && graph != null,
@@ -267,12 +267,24 @@ fun algorithms(
 
         Button(
             onClick = {
-                openWindow("bridges", "Поиск мостов")
+                openWindow("bridgesFind", "Поиск мостов")
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = graph != null,
         ) {
             Text("Поиск мостов")
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        Button(
+            onClick = {
+                openWindow("voteRank", "Выделение ключевых вершин")
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = graph != null,
+        ) {
+            Text("Поиск ключевых вершин")
         }
 
         Spacer(Modifier.height(8.dp))
