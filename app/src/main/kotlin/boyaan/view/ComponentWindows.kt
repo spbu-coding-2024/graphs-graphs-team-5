@@ -250,6 +250,43 @@ fun algorithms(
         ) {
             Text("Алгоритм Дейкстры")
         }
+
+        Spacer(Modifier.height(8.dp))
+
+        Button(
+            onClick = {
+                openWindow("fordBellman", "Аглоритм Форда-Беллмана")
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = selectedVertexKey != null && graph != null,
+        ) {
+            Text("Алгоритм Форда-Беллама")
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        Button(
+            onClick = {
+                openWindow("bridgesFind", "Поиск мостов")
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = graph != null,
+        ) {
+            Text("Поиск мостов")
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        Button(
+            onClick = {
+                openWindow("voteRank", "Выделение ключевых вершин")
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = graph != null,
+        ) {
+            Text("Поиск ключевых вершин")
+        }
+
         Spacer(Modifier.height(8.dp))
 
         Button(

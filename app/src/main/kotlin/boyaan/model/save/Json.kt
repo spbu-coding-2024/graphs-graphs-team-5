@@ -36,7 +36,7 @@ enum class GraphType { DEFAULT, DIRECTED, WEIGHTED, DIRECTED_WEIGHTED }
 
 @Serializable
 data class GraphD(
-    val type: GraphType,
+    val type: GraphT,
     val vertices: List<VertexD>,
     val edges: List<EdgeD>,
 )
@@ -67,10 +67,10 @@ fun OffsetD.toOffset() = Offset(x, y)
 fun Graph<String, String>.toData(): GraphD {
     val type =
         when (this) {
-            is DirectedWeightedGraph -> GraphType.DIRECTED_WEIGHTED
-            is UndirectedWeightedGraph -> GraphType.WEIGHTED
-            is DirectedUnweightedGraph -> GraphType.DIRECTED
-            else -> GraphType.DEFAULT
+            is DirectedWeightedGraph -> GraphT.DIRECTED_WEIGHTED
+            is UndirectedWeightedGraph -> GraphT.WEIGHTED
+            is DirectedUnweightedGraph -> GraphT.DIRECTED
+            else -> GraphT.DEFAULT
         }
 
     return GraphD(
@@ -91,10 +91,10 @@ fun GraphD.toGraph(): Graph<String, String> {
     print(type)
     val g =
         when (type) {
-            GraphType.DEFAULT -> DefaultGraph<String, String>()
-            GraphType.DIRECTED -> DirectedUnweightedGraph()
-            GraphType.WEIGHTED -> UndirectedWeightedGraph()
-            GraphType.DIRECTED_WEIGHTED -> DirectedWeightedGraph()
+            GraphT.DEFAULT -> DefaultGraph<String, String>()
+            GraphT.DIRECTED -> DirectedUnweightedGraph()
+            GraphT.WEIGHTED -> UndirectedWeightedGraph()
+            GraphT.DIRECTED_WEIGHTED -> DirectedWeightedGraph()
         }
 
     vertices.forEach { g.addVertex(it.value) }

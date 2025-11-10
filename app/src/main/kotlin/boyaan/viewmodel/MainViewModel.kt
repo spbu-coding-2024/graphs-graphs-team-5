@@ -1,5 +1,6 @@
 package boyaan.viewmodel
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,11 +16,14 @@ import boyaan.model.core.internals.directed.DirectedUnweightedGraph
 import boyaan.model.core.internals.directedWeighted.DirectedWeightedGraph
 import boyaan.model.core.internals.weighted.UndirectedWeightedGraph
 import boyaan.view.algorithms
+import boyaan.view.bridgesFindWindow
 import boyaan.view.dijkstraWindow
 import boyaan.view.edgeEditorWindow
+import boyaan.view.fordBellmanWindow
 import boyaan.view.propertiesWindow
 import boyaan.view.saveTabWindow
 import boyaan.view.vertexEditorWindow
+import boyaan.view.voteRankWindow
 import java.util.UUID
 import kotlin.let
 
@@ -172,6 +176,52 @@ class MainViewModel {
                                 result?.path?.forEach { vKey ->
                                     tabs[selectedTab].highlightedVertex[vKey] = true
                                 }
+                            },
+                        )
+                    }
+                }
+
+                "fordBellman" -> {
+                    @androidx.compose.runtime.Composable
+                    {
+                        fordBellmanWindow(
+                            currentTab = tabs[selectedTab],
+                            onClose = { closeFloatingWindow(windowId) },
+                            onRun = { result ->
+                                tabs[selectedTab].highlightedVertex.clear()
+                                result?.forEach { vKey ->
+                                    tabs[selectedTab].highlightedVertex[vKey] = true
+                                }
+                            },
+                        )
+                    }
+                }
+
+                "bridgesFind" -> {
+                    @androidx.compose.runtime.Composable
+                    {
+                        bridgesFindWindow(
+                            currentTab = tabs[selectedTab],
+                            onClose = { closeFloatingWindow(windowId) },
+                            onRun = { bridges ->
+                                tabs[selectedTab].highlightedVertex.clear()
+                                bridges?.forEach { (uKey, vKey) ->
+                                    tabs[selectedTab].highlightedVertex[uKey] = true
+                                    tabs[selectedTab].highlightedVertex[vKey] = true
+                                }
+                            },
+                        )
+                    }
+                }
+
+                "voteRank" -> {
+                    @androidx.compose.runtime.Composable {
+                        voteRankWindow(
+                            currentTab = tabs[selectedTab],
+                            onClose = { closeFloatingWindow(windowId) },
+                            onRun = { result ->
+                                tabs[selectedTab].highlightedVertex.clear()
+                                result?.forEach { key -> tabs[selectedTab].highlightedVertex[key] = true }
                             },
                         )
                     }
