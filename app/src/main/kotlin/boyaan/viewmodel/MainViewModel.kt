@@ -20,6 +20,7 @@ import boyaan.view.bridgesFindWindow
 import boyaan.view.dijkstraWindow
 import boyaan.view.edgeEditorWindow
 import boyaan.view.fordBellmanWindow
+import boyaan.view.neo4jExportWindow
 import boyaan.view.propertiesWindow
 import boyaan.view.saveTabWindow
 import boyaan.view.vertexEditorWindow
@@ -160,6 +161,15 @@ class MainViewModel {
                     {
                         saveTabWindow(
                             tab = tabs[selectedTab],
+                            onClose = { closeFloatingWindow(windowId) },
+                        )
+                    }
+                }
+
+                "neo4jExport" -> {
+                    @androidx.compose.runtime.Composable {
+                        neo4jExportWindow(
+                            currentTab = tabs[selectedTab],
                             onClose = { closeFloatingWindow(windowId) },
                         )
                     }

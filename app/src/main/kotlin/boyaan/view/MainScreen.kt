@@ -10,10 +10,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedButton
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
@@ -25,12 +28,19 @@ import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import boyaan.model.ScreenState
 import boyaan.model.TabState
+import boyaan.model.save.Neo4j
 import boyaan.model.save.loadTabFromFile
 import boyaan.viewmodel.MainViewModel
+import kotlinx.coroutines.launch
 import kotlin.collections.toMutableList
 
 @Composable
@@ -38,6 +48,10 @@ fun mainScreen(
     viewModel: MainViewModel,
     onTabLoaded: (TabState) -> Unit,
 ) {
+    var showSourceDialog by remember { mutableStateOf(false) }
+    var showNeo4jDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
     MaterialTheme(colors = if (viewModel.isDarkTheme) darkColors() else lightColors()) {
         Scaffold(
             topBar = {
@@ -122,6 +136,15 @@ fun mainScreen(
                                 ) {
                                     Text("JSON")
                                 }
+
+                                Button(
+                                    onClick = {
+                                        viewModel.openFloatingWindow("neo4jExport", "Neo4j")
+                                    },
+                                    modifier = Modifier.padding(end = 8.dp),
+                                ) {
+                                    Text("Neo4j")
+                                }
                             }
                         }
 
@@ -149,24 +172,7 @@ fun mainScreen(
                                 viewModel.tabs = newTabs
                             },
                             onOpen = {
-                                val dialog = javax.swing.JFileChooser()
-                                dialog.dialogTitle = "Загрузить JSON"
-                                dialog.fileSelectionMode = javax.swing.JFileChooser.FILES_ONLY
-                                dialog.fileFilter =
-                                    object : javax.swing.filechooser.FileFilter() {
-                                        override fun accept(f: java.io.File) = f.isDirectory || f.name.lowercase().endsWith(".json")
-
-                                        override fun getDescription() = "JSON файлы (*.json)"
-                                    }
-
-                                val result = dialog.showOpenDialog(null)
-                                if (result == javax.swing.JFileChooser.APPROVE_OPTION) {
-                                    val file = dialog.selectedFile
-                                    val loadedTab = loadTabFromFile(file.absolutePath)
-                                    if (loadedTab != null) {
-                                        onTabLoaded(loadedTab)
-                                    }
-                                }
+                                showSourceDialog = true
                             },
                         )
                     ScreenState.Graph -> {
@@ -185,7 +191,103 @@ fun mainScreen(
                         )
                     }
                 }
+                if (showSourceDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showSourceDialog = false },
+                        title = { Text("Выберите источник данных") },
+                        text = { Text("Откуда загрузить граф?") },
+                        buttons = {
+                            Row(Modifier.padding(16.dp)) {
+                                Button(
+                                    onClick = {
+                                        showSourceDialog = false
+                                        openJsonDialog(onTabLoaded)
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                ) { Text("JSON файл") }
+
+                                Spacer(Modifier.width(16.dp))
+
+                                Button(
+                                    onClick = {
+                                        showSourceDialog = false
+                                        showNeo4jDialog = true
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                ) { Text("Neo4j") }
+                            }
+                        },
+                    )
+                }
+
+                if (showNeo4jDialog) {
+                    neo4jConnectionDialog(
+                        onDismiss = { showNeo4jDialog = false },
+                        onConnect = { uri, user, password ->
+                            showNeo4jDialog = false
+                            scope.launch {
+                                val neo4j = Neo4j(uri, user, password)
+                                val graph = neo4j.importGraph({ it }, { it })
+                                val tab = TabState(title = "Neo4j", graph = graph)
+                                onTabLoaded(tab)
+                                neo4j.close()
+                            }
+                        },
+                    )
+                }
             }
         }
+    }
+}
+
+@Composable
+fun neo4jConnectionDialog(
+    onDismiss: () -> Unit,
+    onConnect: (uri: String, user: String, password: String) -> Unit,
+) {
+    var uri by remember { mutableStateOf("") }
+    var user by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
+    val isValid = uri.isNotBlank() && user.isNotBlank() && password.isNotBlank()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Подключение к Neo4j") },
+        text = {
+            Column {
+                OutlinedTextField(value = uri, onValueChange = { uri = it }, label = { Text("URI") })
+                OutlinedTextField(value = user, onValueChange = { user = it }, label = { Text("User") })
+                OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text("Password") })
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onConnect(uri, user, password) },
+                enabled = isValid,
+            ) { Text("Подключиться") }
+        },
+        dismissButton = {
+            OutlinedButton(onClick = onDismiss) { Text("Отмена") }
+        },
+    )
+}
+
+fun openJsonDialog(onTabLoaded: (TabState) -> Unit) {
+    val dialog = javax.swing.JFileChooser()
+    dialog.dialogTitle = "Загрузить JSON"
+    dialog.fileSelectionMode = javax.swing.JFileChooser.FILES_ONLY
+    dialog.fileFilter =
+        object : javax.swing.filechooser.FileFilter() {
+            override fun accept(f: java.io.File) = f.isDirectory || f.name.lowercase().endsWith(".json")
+
+            override fun getDescription() = "JSON файлы (*.json)"
+        }
+
+    val result = dialog.showOpenDialog(null)
+    if (result == javax.swing.JFileChooser.APPROVE_OPTION) {
+        val file = dialog.selectedFile
+        val loadedTab = loadTabFromFile(file.absolutePath)
+        if (loadedTab != null) onTabLoaded(loadedTab)
     }
 }
