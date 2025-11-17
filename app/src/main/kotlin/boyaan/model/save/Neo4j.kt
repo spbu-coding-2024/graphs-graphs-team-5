@@ -63,14 +63,14 @@ class Neo4j(
                     val rightKey = edge.key.second
                     val leftIndex = originalKeyToIndex[leftKey] ?: throw IllegalArgumentException("Vertex key missing")
                     val rightIndex = originalKeyToIndex[rightKey] ?: throw IllegalArgumentException("Vertex key missing")
-                    val (minIndex, maxIndex) =
-                        if (leftIndex <= rightIndex) {
-                            leftIndex to rightIndex
-                        } else {
-                            rightIndex to leftIndex
+
+                    val (uIndex, vIndex) =
+                        when (graph) {
+                            is DirectedUnweightedGraph, is DirectedWeightedGraph -> leftIndex to rightIndex
+                            else -> if (leftIndex <= rightIndex) leftIndex to rightIndex else rightIndex to leftIndex
                         }
 
-                    mapOf("uIndex" to minIndex, "vIndex" to maxIndex, "value" to edge.value.toString())
+                    mapOf("uIndex" to uIndex, "vIndex" to vIndex, "value" to edge.value.toString())
                 }
 
             nodesPayload.chunked(batchSize).forEach { batch ->
@@ -92,7 +92,8 @@ class Neo4j(
                         """
                         UNWIND $${"edges"} AS edgeEntry
                         MATCH (a:Vertex {origId: edgeEntry.uIndex}), (b:Vertex {origId: edgeEntry.vIndex})
-                        MERGE (a)-[r:EDGE {value: edgeEntry.value}]->(b)
+                        MERGE (a)-[r:EDGE]->(b)
+                        SET r.value = edgeEntry.value
                         """.trimIndent(),
                         mapOf("edges" to batch),
                     )
